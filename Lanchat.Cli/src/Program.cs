@@ -51,6 +51,9 @@ namespace Lanchat.Cli.Program
                 SaveConfig();
             }
 
+            Prompt.Out("");
+            Prompt.Out("Test-only version. Currently without message support");
+
             // initialize prompt
             Prompt.Out("");
             new Thread(Prompt.Init).Start();
