@@ -15,6 +15,7 @@ namespace Lanchat.Core
 
         internal readonly Encryption Encryption;
         internal readonly INetworkElement NetworkElement;
+        
         public readonly NetworkInput NetworkInput;
         public readonly NetworkOutput NetworkOutput;
 
@@ -23,7 +24,8 @@ namespace Lanchat.Core
         /// </summary>
         /// <param name="networkElement">TCP client or session.</param>
         /// <param name="sendHandshake">Send handshake immediately</param>
-        public Node(INetworkElement networkElement, bool sendHandshake)
+        /// <param name="relayNode">Is node created in relay</param>
+        public Node(INetworkElement networkElement, bool sendHandshake, bool relayNode = false)
         {
             NetworkElement = networkElement;
             NetworkOutput = new NetworkOutput(this);
@@ -42,7 +44,7 @@ namespace Lanchat.Core
 
             if (sendHandshake)
             {
-                SendHandshakeAndWait();
+                SendHandshakeAndWait(relayNode);
             }
             else
             {
@@ -55,7 +57,7 @@ namespace Lanchat.Core
         /// </summary>
         public string Nickname
         {
-            get => $"{nickname}#{ShortId}";
+            get => RelayNode ? $"{nickname}#RELAY" : $"{nickname}#{ShortId}";
             private set => nickname = value;
         }
 
@@ -63,6 +65,8 @@ namespace Lanchat.Core
         ///     Node ready. If set to false node won't send or receive messages.
         /// </summary>
         public bool Ready { get; private set; }
+        
+        public bool RelayNode { get; internal set; }
 
         /// <summary>
         ///     ID of TCP client or session.
@@ -201,9 +205,9 @@ namespace Lanchat.Core
             NicknameChanged?.Invoke(this, previousNickname);
         }
 
-        private void SendHandshakeAndWait()
+        private void SendHandshakeAndWait(bool relayNode = false)
         {
-            NetworkOutput.SendHandshake();
+            NetworkOutput.SendHandshake(relayNode);
 
             // Check is connection established successful after timeout.
             Task.Delay(5000).ContinueWith(t =>

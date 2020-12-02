@@ -33,7 +33,7 @@ namespace Lanchat.Core
                 }
                 else
                 {
-                    var node = new Node(session, true);
+                    var node = new Node(session, true, true);
                     IncomingConnections.Add(node);
                     node.NetworkInput.MessageReceived += NodeOnMessageReceived;
                     node.HardDisconnect += OnHardDisconnected;
@@ -60,11 +60,12 @@ namespace Lanchat.Core
         private void NodeOnMessageReceived(object sender, string e)
         {
             var nodeNetworkInput = (NetworkInput) sender;
+            var node = IncomingConnections.First(x => x.Id == nodeNetworkInput.Id);
             Trace.WriteLine($"Broadcasting message from {nodeNetworkInput.Id}");
 
             IncomingConnections.Where(x => x.Id != nodeNetworkInput.Id).ToList().ForEach(x =>
             {
-                x.NetworkOutput.SendMessage($"RELAYED {e}");
+                x.NetworkOutput.SendMessage($"{node.Nickname}: {e}");
             });
         }
 

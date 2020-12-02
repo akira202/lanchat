@@ -27,6 +27,8 @@ RSA public key comes in handshake.
 
 All packets contains jsons with two keys in root (*Type*, *Data*) and multiple keys in *Data* key.
 
+### Lanchat 2 protocol
+
 <table>
     <tr>
         <th>

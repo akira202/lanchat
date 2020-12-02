@@ -45,7 +45,7 @@ namespace Lanchat.Terminal
         {
             Ui.Log.AddMessage(e, node.Nickname);
         }
-
+        
         private void OnPrivateMessageReceived(object sender, string e)
         {
             Ui.Log.AddPrivateMessage(e, node.Nickname);

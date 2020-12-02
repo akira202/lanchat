@@ -11,8 +11,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{4A81DEED-94C6-424D-93D6-65CB8C0C0F81}"
 	ProjectSection(SolutionItems) = preProject
 		Docs\API.md = Docs\API.md
-		Docs\LICENSE = Docs\LICENSE
 		Docs\README.md = Docs\README.md
+		LICENSE = LICENSE
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lanchat.Core", "Lanchat.Core\Lanchat.Core.csproj", "{AA294C4F-B22C-4203-A706-F07CB153BD5F}"

@@ -49,12 +49,13 @@ namespace Lanchat.Core.Network
             SendData(DataTypes.PrivateMessage, node.Encryption.Encrypt(content));
         }
 
-        internal void SendHandshake()
+        internal void SendHandshake(bool isRelay = false)
         {
             var handshake = new Handshake
             {
                 Nickname = CoreConfig.Nickname,
-                PublicKey = node.Encryption.ExportPublicKey()
+                PublicKey = node.Encryption.ExportPublicKey(),
+                Relay = isRelay
             };
 
             SendData(DataTypes.Handshake, handshake);
@@ -62,8 +63,6 @@ namespace Lanchat.Core.Network
 
         internal void SendKey()
         {
-            // TODO: Sometimes handshake and key are sent to server in one packet. This should be fixed in better way.
-            Thread.Sleep(100);
             var keyInfo = node.Encryption.ExportAesKey();
             SendData(DataTypes.KeyInfo, keyInfo);
         }

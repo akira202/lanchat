@@ -28,7 +28,7 @@ namespace Lanchat.Core.Network
         ///     Private message received.
         /// </summary>
         public event EventHandler<string> PrivateMessageReceived;
-
+        
         internal Guid Id { get; }
 
         internal event EventHandler<Handshake> HandshakeReceived;
@@ -73,6 +73,7 @@ namespace Lanchat.Core.Network
                             Trace.WriteLine($"Node {node.Id} received handshake");
                             var handshake = JsonSerializer.Deserialize<Handshake>(content);
                             handshake.Nickname = TruncateAndValidate(handshake.Nickname, CoreConfig.MaxNicknameLenght);
+                            node.RelayNode = handshake.Relay;
                             HandshakeReceived?.Invoke(this, handshake);
                             break;
 
