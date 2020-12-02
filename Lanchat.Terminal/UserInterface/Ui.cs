@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading;
 using ConsoleGUI;
 using ConsoleGUI.Api;
@@ -64,7 +65,7 @@ namespace Lanchat.Terminal.UserInterface
                             Color = ConsoleColor.DarkBlue,
                             Content = new TextBlock
                             {
-                                Text = $" {Resources.Ui_WindowTitle} - {Resources.Ui_Motd}"
+                                Text = $" {Resources.Ui_WindowTitle} - {Assembly.GetExecutingAssembly().GetName().Version}"
                             }
                         }
                     },
