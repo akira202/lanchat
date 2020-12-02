@@ -2,9 +2,9 @@
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
-        <PackageVersion>2.1.1</PackageVersion>
-        <AssemblyVersion>2.1.1</AssemblyVersion>
-        <AssemblyInformationalVersion>2.1.1</AssemblyInformationalVersion>
+        <PackageVersion>2.2.0</PackageVersion>
+        <AssemblyVersion>2.2.0</AssemblyVersion>
+        <AssemblyInformationalVersion>2.2.0-b1</AssemblyInformationalVersion>
         <Title>Lanchat.Core</Title>
         <Description>Local network P2P chat libary.</Description>
         <Copyright>tofudd</Copyright>

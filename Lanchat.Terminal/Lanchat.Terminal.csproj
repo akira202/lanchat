@@ -5,14 +5,12 @@
     <TargetFramework>net5.0</TargetFramework>
     <PackageIcon>icon.ico</PackageIcon>
     <AssemblyName>Lanchat</AssemblyName>
-    <AssemblyVersion>2.1.1.0</AssemblyVersion>
-    <AssemblyInformationalVersion>2.1.1</AssemblyInformationalVersion>
+    <AssemblyVersion>2.2.0.0</AssemblyVersion>
+    <AssemblyInformationalVersion>2.2.0-b1</AssemblyInformationalVersion>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <IsPackable>false</IsPackable>
     <Company>tofudd</Company>
-    <Version>2.1.1</Version>
-    <PackageVersion>2.1.1</PackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
