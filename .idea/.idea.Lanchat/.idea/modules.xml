@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/.idea.Lanchat/Lanchat.Xamarin.Android.iml" filepath="$PROJECT_DIR$/.idea/.idea.Lanchat/Lanchat.Xamarin.Android.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/.idea.Lanchat/riderModule.iml" filepath="$PROJECT_DIR$/.idea/.idea.Lanchat/riderModule.iml" />
     </modules>
   </component>

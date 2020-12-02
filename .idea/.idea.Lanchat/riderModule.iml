@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="RIDER_MODULE" version="4">
   <component name="NewModuleRootManager">
-    <content url="file://C:/Microsoft/Xamarin/NuGet/xamarin.android.arch.lifecycle.runtime/1.1.1.3/proguard/monoandroid90/proguard.txt" />
-    <content url="file://C:/Microsoft/Xamarin/NuGet/xamarin.android.arch.lifecycle.viewmodel/1.1.1.3/proguard/monoandroid90/proguard.txt" />
-    <content url="file://C:/Microsoft/Xamarin/NuGet/xamarin.android.support.animated.vector.drawable/28.0.0.3/proguard/monoandroid90/proguard.txt" />
-    <content url="file://C:/Microsoft/Xamarin/NuGet/xamarin.android.support.compat/28.0.0.3/proguard/monoandroid90/proguard.txt" />
-    <content url="file://C:/Microsoft/Xamarin/NuGet/xamarin.android.support.coordinaterlayout/28.0.0.3/proguard/monoandroid90/proguard.txt" />
-    <content url="file://C:/Microsoft/Xamarin/NuGet/xamarin.android.support.design/28.0.0.3/proguard/monoandroid90/proguard.txt" />
-    <content url="file://C:/Microsoft/Xamarin/NuGet/xamarin.android.support.media.compat/28.0.0.3/proguard/monoandroid90/proguard.txt" />
-    <content url="file://C:/Microsoft/Xamarin/NuGet/xamarin.android.support.transition/28.0.0.3/proguard/monoandroid90/proguard.txt" />
-    <content url="file://C:/Microsoft/Xamarin/NuGet/xamarin.android.support.v7.appcompat/28.0.0.3/proguard/monoandroid90/proguard.txt" />
-    <content url="file://C:/Microsoft/Xamarin/NuGet/xamarin.android.support.v7.recyclerview/28.0.0.3/proguard/monoandroid90/proguard.txt" />
-    <content url="file://C:/Microsoft/Xamarin/NuGet/xamarin.android.support.versionedparcelable/28.0.0.3/proguard/monoandroid90" />
-    <content url="file://$USER_HOME$/.nuget/packages/xamarin.forms/4.8.0.1534/buildTransitive/MonoAndroid10" />
     <content url="file://$MODULE_DIR$/../.." />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>

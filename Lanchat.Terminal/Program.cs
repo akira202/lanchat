@@ -18,13 +18,13 @@ namespace Lanchat.Terminal
         private static void Main(string[] args)
         {
             Config = Config.Load();
-
-            // Initialize server mode
-            if (args.Contains("--server") || args.Contains("-s"))
+            
+            // Initialize relay mode
+            if (args.Contains("--relay") || args.Contains("-r"))
             {
                 Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
-                var server = new Server(IPAddress.Any, CoreConfig.ServerPort);
-                server.Start();
+                var relay = new Relay(IPAddress.Any, CoreConfig.ServerPort);
+                relay.Start();
                 CleanLogs();
                 while (true)
                 {
