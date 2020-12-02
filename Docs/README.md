@@ -21,6 +21,7 @@ You can start terminal client with the following arguments:
 | --loopback  | -l    | Connect with localhost after start (for debug). |
 | --server    | -s    | Start only server without UI.                   |
 | --no-server | -n    | Start without server.                           |
+| --relay     | -r    | Start in relay mode.                            |
 
 ## How it works
 In P2P mode nodes starts own server and multiple clients. Each node is connected with other by single TCP connection.
