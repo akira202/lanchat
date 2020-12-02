@@ -15,6 +15,7 @@ namespace Lanchat.Core.Network
         internal NetworkInput(Node node)
         {
             this.node = node;
+            Id = node.Id;
             serializerOptions = CoreConfig.JsonSerializerOptions;
         }
 
@@ -27,6 +28,8 @@ namespace Lanchat.Core.Network
         ///     Private message received.
         /// </summary>
         public event EventHandler<string> PrivateMessageReceived;
+
+        internal Guid Id { get; }
 
         internal event EventHandler<Handshake> HandshakeReceived;
         internal event EventHandler<KeyInfo> KeyInfoReceived;

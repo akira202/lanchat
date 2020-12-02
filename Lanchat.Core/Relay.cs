@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using Lanchat.Core.Network;
@@ -16,13 +17,13 @@ namespace Lanchat.Core
         }
 
         public List<Node> IncomingConnections { get; }
-        
+
         public event EventHandler<SocketError> ServerErrored;
 
         protected override TcpSession CreateSession()
         {
             var session = new Session(this);
-            
+
             session.Connected += (sender, args) =>
             {
                 if (CoreConfig.BlockedAddresses.Contains(session.Endpoint.Address))
@@ -34,6 +35,7 @@ namespace Lanchat.Core
                 {
                     var node = new Node(session, true);
                     IncomingConnections.Add(node);
+                    node.NetworkInput.MessageReceived += NodeOnMessageReceived;
                     node.HardDisconnect += OnHardDisconnected;
                     Trace.WriteLine($"Session for {session.Endpoint.Address} created. Session ID: {session.Id}");
                 }
@@ -41,18 +43,29 @@ namespace Lanchat.Core
 
             return session;
         }
-        
+
         protected override void OnStarted()
         {
             Trace.WriteLine($"Relay listening on {Endpoint.Port}");
             base.OnStarted();
         }
-        
+
         private void OnHardDisconnected(object sender, EventArgs e)
         {
             var node = (Node) sender;
             IncomingConnections.Remove(node);
             node.Dispose();
+        }
+
+        private void NodeOnMessageReceived(object sender, string e)
+        {
+            var nodeNetworkInput = (NetworkInput) sender;
+            Trace.WriteLine($"Broadcasting message from {nodeNetworkInput.Id}");
+
+            IncomingConnections.Where(x => x.Id != nodeNetworkInput.Id).ToList().ForEach(x =>
+            {
+                x.NetworkOutput.SendMessage($"RELAYED {e}");
+            });
         }
 
         protected override void OnError(SocketError error)
