@@ -4,15 +4,18 @@ using Lanchat.Terminal.UserInterface;
 
 namespace Lanchat.Terminal.Commands
 {
-    public static class Block
+    public class Block : ICommand
     {
-        public static void Execute(string[] args)
+        public string Alias { get; set; } = "block";
+        public int ArgsCount { get; set; } = 1;
+
+        public void Execute(string[] args)
         {
             IPAddress ipAddress;
 
             if (args == null || args.Length < 1)
             {
-                Ui.Log.Add(Resources.Manual_Block);
+                Ui.Log.Add(Resources.Help_block);
                 return;
             }
 

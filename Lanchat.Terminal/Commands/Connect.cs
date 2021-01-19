@@ -9,13 +9,16 @@ using static System.Int32;
 
 namespace Lanchat.Terminal.Commands
 {
-    public static class Connect
+    public class Connect : ICommand
     {
-        public static void Execute(string[] args)
+        public string Alias { get; set; } = "connect";
+        public int ArgsCount { get; set; } = 1;
+
+        public void Execute(string[] args)
         {
             if (args == null || args.Length < 1)
             {
-                Ui.Log.Add(Resources.Manual_Connect);
+                Ui.Log.Add(Resources.Help_connect);
                 return;
             }
 

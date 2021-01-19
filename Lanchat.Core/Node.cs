@@ -1,21 +1,30 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Lanchat.Core.Extensions;
 using Lanchat.Core.Models;
 using Lanchat.Core.Network;
 
 namespace Lanchat.Core
 {
-    public class Node : IDisposable
+    public class Node : IDisposable, INotifyPropertyChanged
     {
         internal readonly Encryption Encryption;
+
         private readonly IPEndPoint firstEndPoint;
         internal readonly INetworkElement NetworkElement;
         public readonly NetworkInput NetworkInput;
         public readonly NetworkOutput NetworkOutput;
         private string nickname;
+
+        internal DateTime? PingSendTime;
+        private string previousNickname;
+        private Status status;
+        private bool underReconnecting;
 
         /// <summary>
         ///     Initialize node.
@@ -25,49 +34,23 @@ namespace Lanchat.Core
         public Node(INetworkElement networkElement, bool sendHandshake)
         {
             NetworkElement = networkElement;
+            firstEndPoint = networkElement.Endpoint;
             NetworkOutput = new NetworkOutput(this);
             NetworkInput = new NetworkInput(this);
             Encryption = new Encryption();
 
-            firstEndPoint = networkElement.Endpoint;
-
             networkElement.Disconnected += OnDisconnected;
-            networkElement.SocketErrored += OnSocketErrored;
             networkElement.DataReceived += NetworkInput.ProcessReceivedData;
+            networkElement.SocketErrored += (s, e) => SocketErrored?.Invoke(s, e);
 
             NetworkInput.HandshakeReceived += OnHandshakeReceived;
             NetworkInput.KeyInfoReceived += OnKeyInfoReceived;
-            NetworkInput.NicknameChanged += OnNicknameChanged;
 
             if (sendHandshake)
                 SendHandshakeAndWait();
             else
                 networkElement.Connected += OnConnected;
         }
-
-        /// <summary>
-        ///     Node nickname.
-        /// </summary>
-        public string Nickname
-        {
-            get => $"{nickname}#{ShortId}";
-            private set => nickname = value;
-        }
-
-        /// <summary>
-        ///     Node ready. If set to false node won't send or receive messages.
-        /// </summary>
-        public bool Ready { get; private set; }
-
-        /// <summary>
-        ///     ID of TCP client or session.
-        /// </summary>
-        public Guid Id => NetworkElement.Id;
-
-        /// <summary>
-        ///     Short ID.
-        /// </summary>
-        public string ShortId => Id.GetHashCode().ToString().Substring(1, 4);
 
         /// <summary>
         ///     IP address of node.
@@ -91,15 +74,73 @@ namespace Lanchat.Core
         }
 
         /// <summary>
-        ///     Is node reconnecting.
+        ///     ID of TCP client or session.
         /// </summary>
-        public bool UnderReconnecting { get; private set; }
+        public Guid Id => NetworkElement.Id;
 
+        /// <summary>
+        ///     Node nickname.
+        /// </summary>
+        public string Nickname
+        {
+            get => $"{nickname}#{ShortId}";
+            set
+            {
+                if (value == nickname) return;
+                previousNickname = nickname;
+                nickname = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        ///     Last ping value.
+        /// </summary>
+        public TimeSpan? Ping { get; internal set; }
+
+        /// <summary>
+        ///     Nickname before last change.
+        /// </summary>
+        public string PreviousNickname => $"{previousNickname}#{ShortId}";
+
+        /// <summary>
+        ///     Node ready. If set to false node won't send or receive messages.
+        /// </summary>
+        public bool Ready { get; private set; }
+
+        /// <summary>
+        ///     Short ID.
+        /// </summary>
+        public string ShortId => Id.GetHashCode().ToString().Substring(1, 4);
+
+        /// <summary>
+        ///     User status.
+        /// </summary>
+        public Status Status
+        {
+            get => status;
+            set
+            {
+                if (value == status) return;
+                status = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        ///     Close connection with node and dispose.
+        /// </summary>
         public void Dispose()
         {
             NetworkElement.Close();
             Encryption.Dispose();
+            GC.SuppressFinalize(this);
         }
+
+        /// <summary>
+        ///     Invoked for properties like nickname or status.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
         ///     Node successful connected and ready.
@@ -122,11 +163,6 @@ namespace Lanchat.Core
         public event EventHandler CannotConnect;
 
         /// <summary>
-        ///     User changed nickname of node. Returns previous nickname in parameter.
-        /// </summary>
-        public event EventHandler<string> NicknameChanged;
-
-        /// <summary>
         ///     TCP session or client for this node returned error.
         /// </summary>
         public event EventHandler<SocketError> SocketErrored;
@@ -137,7 +173,7 @@ namespace Lanchat.Core
         public void Disconnect()
         {
             NetworkOutput.SendGoodbye();
-            NetworkElement.Close();
+            Dispose();
         }
 
         // Network elements events.
@@ -149,7 +185,7 @@ namespace Lanchat.Core
 
         private void OnDisconnected(object sender, bool hardDisconnect)
         {
-            UnderReconnecting = !hardDisconnect;
+            underReconnecting = !hardDisconnect;
 
             // Raise event only if node was ready before.
             if (hardDisconnect && !Ready)
@@ -169,17 +205,11 @@ namespace Lanchat.Core
             Ready = false;
         }
 
-        private void OnSocketErrored(object sender, SocketError e)
-        {
-            SocketErrored?.Invoke(this, e);
-        }
-
-        // Network Input events.
-
         private void OnHandshakeReceived(object sender, Handshake handshake)
         {
-            Nickname = handshake.Nickname;
+            Nickname = handshake.Nickname.Truncate(CoreConfig.MaxNicknameLenght);
             Encryption.ImportPublicKey(handshake.PublicKey);
+            Status = handshake.Status;
             NetworkOutput.SendKey();
         }
 
@@ -190,15 +220,6 @@ namespace Lanchat.Core
             Connected?.Invoke(this, EventArgs.Empty);
         }
 
-        private void OnNicknameChanged(object sender, string e)
-        {
-            if (e == Nickname) return;
-
-            var previousNickname = Nickname;
-            Nickname = e;
-            NicknameChanged?.Invoke(this, previousNickname);
-        }
-
         private void SendHandshakeAndWait()
         {
             NetworkOutput.SendHandshake();
@@ -206,8 +227,13 @@ namespace Lanchat.Core
             // Check is connection established successful after timeout.
             Task.Delay(5000).ContinueWith(_ =>
             {
-                if (!Ready && !UnderReconnecting) NetworkElement.Close();
+                if (!Ready && !underReconnecting) NetworkElement.Close();
             });
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

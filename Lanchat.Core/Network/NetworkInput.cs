@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
+using Lanchat.Core.Extensions;
 using Lanchat.Core.Models;
 
 namespace Lanchat.Core.Network
@@ -28,10 +29,14 @@ namespace Lanchat.Core.Network
         /// </summary>
         public event EventHandler<string> PrivateMessageReceived;
 
+        /// <summary>
+        ///     Ping pong.
+        /// </summary>
+        public event EventHandler<TimeSpan?> PongReceived;
+
         internal event EventHandler<Handshake> HandshakeReceived;
         internal event EventHandler<KeyInfo> KeyInfoReceived;
         internal event EventHandler<List<IPAddress>> NodesListReceived;
-        internal event EventHandler<string> NicknameChanged;
 
         internal void ProcessReceivedData(object sender, string dataString)
         {
@@ -47,33 +52,34 @@ namespace Lanchat.Core.Network
                     // Ignore handshake and key info is node was set as ready before.
                     if (node.Ready && (json.Type == DataTypes.Handshake || json.Type == DataTypes.KeyInfo)) return;
 
+                    Trace.WriteLine($"Node {node.Id} received {json.Type}");
+
                     switch (json.Type)
                     {
                         case DataTypes.Message:
-                            MessageReceived?.Invoke(this,
-                                Common.TruncateAndValidate(node.Encryption.Decrypt(content), CoreConfig.MaxMessageLenght));
+                            var decryptedMessage = node.Encryption.Decrypt(content);
+                            if (decryptedMessage == null) return;
+                            MessageReceived?.Invoke(this, decryptedMessage.Truncate(CoreConfig.MaxMessageLenght));
                             break;
 
                         case DataTypes.PrivateMessage:
+                            var decryptedPrivateMessage = node.Encryption.Decrypt(content);
+                            if (decryptedPrivateMessage == null) return;
                             PrivateMessageReceived?.Invoke(this,
-                                Common.TruncateAndValidate(node.Encryption.Decrypt(content), CoreConfig.MaxMessageLenght));
+                                decryptedPrivateMessage.Truncate(CoreConfig.MaxMessageLenght));
                             break;
 
                         case DataTypes.Handshake:
-                            Trace.WriteLine($"Node {node.Id} received handshake");
-                            var handshake = JsonSerializer.Deserialize<Handshake>(content);
-                            handshake.Nickname = Common.TruncateAndValidate(handshake.Nickname, CoreConfig.MaxNicknameLenght);
+                            var handshake = JsonSerializer.Deserialize<Handshake>(content, serializerOptions);
                             HandshakeReceived?.Invoke(this, handshake);
                             break;
 
                         case DataTypes.KeyInfo:
-                            Trace.WriteLine($"Node {node.Id} received key info");
                             var keyInfo = JsonSerializer.Deserialize<KeyInfo>(content);
                             KeyInfoReceived?.Invoke(this, keyInfo);
                             break;
 
                         case DataTypes.NodesList:
-                            Trace.WriteLine($"Node {node.Id} received nodes list");
                             var stringList = JsonSerializer.Deserialize<List<string>>(content);
                             var list = new List<IPAddress>();
 
@@ -87,17 +93,30 @@ namespace Lanchat.Core.Network
                             break;
 
                         case DataTypes.NicknameUpdate:
-                            Trace.WriteLine($"Node {node.Id} received nickname update");
-                            NicknameChanged?.Invoke(this, Common.TruncateAndValidate(content, CoreConfig.MaxNicknameLenght));
+                            node.Nickname = content.Truncate(CoreConfig.MaxNicknameLenght);
                             break;
 
                         case DataTypes.Goodbye:
-                            Trace.WriteLine($"Node {node.Id} received goodbye");
                             node.NetworkElement.EnableReconnecting = false;
                             break;
 
+                        case DataTypes.StatusUpdate:
+                            if (Enum.TryParse<Status>(content, out var status)) node.Status = status;
+                            break;
+
+                        case DataTypes.Ping:
+                            node.NetworkOutput.SendPong();
+                            break;
+
+                        case DataTypes.Pong:
+                            if (node.PingSendTime == null) return;
+                            node.Ping = DateTime.Now - node.PingSendTime;
+                            node.PingSendTime = null;
+                            PongReceived?.Invoke(this, node.Ping);
+                            break;
+
                         default:
-                            Trace.WriteLine($"Node {node.Id} received unknown data");
+                            Trace.WriteLine($"Node {node.Id} received data of unknown type.");
                             break;
                     }
                 }
@@ -105,10 +124,7 @@ namespace Lanchat.Core.Network
                 // Input errors catching.
                 catch (Exception ex)
                 {
-                    if (ex is JsonException || ex is ArgumentNullException)
-                        Trace.WriteLine("Invalid data received");
-                    else
-                        throw;
+                    if (ex is not JsonException && ex is not ArgumentNullException) throw;
                 }
         }
     }

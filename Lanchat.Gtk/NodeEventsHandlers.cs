@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Net.Sockets;
 using Lanchat.Core;
 using Lanchat.Gtk.Views;
@@ -20,7 +21,7 @@ namespace Lanchat.Gtk
             node.Disconnected += OnDisconnected;
             node.HardDisconnect += OnHardDisconnected;
             node.SocketErrored += OnSocketErrored;
-            node.NicknameChanged += OnNicknameChanged;
+            node.PropertyChanged += OnPropertyChanged;
             node.CannotConnect += OnCannotConnect;
         }
 
@@ -52,8 +53,9 @@ namespace Lanchat.Gtk
         {
         }
 
-        private void OnNicknameChanged(object sender, string e)
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            if (e.PropertyName == "Nickname") throw new NotImplementedException();
         }
 
         private void OnCannotConnect(object sender, EventArgs e)

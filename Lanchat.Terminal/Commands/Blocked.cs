@@ -3,9 +3,12 @@ using Lanchat.Terminal.UserInterface;
 
 namespace Lanchat.Terminal.Commands
 {
-    public static class Blocked
+    public class Blocked : ICommand
     {
-        public static void Execute()
+        public string Alias { get; set; } = "blocked";
+        public int ArgsCount { get; set; }
+
+        public void Execute(string[] _)
         {
             Ui.Log.Add($"{Resources.Info_BlockedList} {Program.Config.BlockedAddresses.Count}");
             Program.Config.BlockedAddresses.ForEach(x => Ui.Log.Add($"{x}"));

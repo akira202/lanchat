@@ -1,25 +1,23 @@
-﻿using System;
-using System.Globalization;
-using Lanchat.Terminal.Properties;
+﻿using Lanchat.Terminal.Properties;
 using Lanchat.Terminal.UserInterface;
 
 namespace Lanchat.Terminal.Commands
 {
-    public static class Help
+    public class Help : ICommand
     {
-        public static void Execute(string[] args)
-        {
-            if (args == null) throw new ArgumentNullException(nameof(args));
+        public string Alias { get; set; } = "help";
+        public int ArgsCount { get; set; }
 
+        public void Execute(string[] args)
+        {
             if (args.Length < 1)
             {
-                Ui.Log.Add(Resources.Manual_Help);
+                Ui.Log.Add(Resources.Help);
             }
             else
             {
-                var command = $"Manual_{CultureInfo.CurrentCulture.TextInfo.ToTitleCase(args[0].ToLower())}";
-                var commandHelp = Resources.ResourceManager.GetObject(command);
-                Ui.Log.Add(commandHelp != null ? commandHelp.ToString() : Resources.Info_ManualNotFound);
+                var commandHelp = Resources.ResourceManager.GetString($"Help_{args[0]}");
+                Ui.Log.Add(commandHelp ?? Resources.Info_ManualNotFound);
             }
         }
     }

@@ -20,6 +20,7 @@ namespace Lanchat.Terminal.UserInterface
         internal static TextBlock PromptIndicator { get; private set; }
         internal static VerticalScrollPanel ScrollPanel { get; private set; }
         internal static TextBlock StatusBar { get; private set; }
+        internal static TextBlock Status { get; private set; }
 
         public static void Start()
         {
@@ -29,6 +30,12 @@ namespace Lanchat.Terminal.UserInterface
 
             _clock = new TextBlock
             {
+                Color = ConsoleColor.Gray
+            };
+
+            Status = new TextBlock
+            {
+                Text = "Online",
                 Color = ConsoleColor.Gray
             };
 
@@ -118,7 +125,10 @@ namespace Lanchat.Terminal.UserInterface
                                     new TextBlock {Text = "]", Color = ConsoleColor.DarkCyan},
                                     new TextBlock {Text = " [", Color = ConsoleColor.DarkCyan},
                                     NodesCount,
-                                    new TextBlock {Text = "] ", Color = ConsoleColor.DarkCyan}
+                                    new TextBlock {Text = "] ", Color = ConsoleColor.DarkCyan},
+                                    new TextBlock {Text = "[", Color = ConsoleColor.DarkCyan},
+                                    Status,
+                                    new TextBlock {Text = "]", Color = ConsoleColor.DarkCyan}
                                 }
                             }
                         }

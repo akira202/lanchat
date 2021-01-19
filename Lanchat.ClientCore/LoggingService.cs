@@ -11,10 +11,8 @@ namespace Lanchat.ClientCore
         {
             AppDomain.CurrentDomain.FirstChanceException += (_, eventArgs) =>
             {
-                if (eventArgs.Exception.Source != "System.Console")
-                {
-                    Trace.WriteLine(eventArgs.Exception.TargetSite);
-                }
+                // Console error logging is disabled because a lot is thrown when the window is resized.
+                if (eventArgs.Exception.Source != "System.Console") Trace.WriteLine(eventArgs.Exception);
             };
 
             Trace.Listeners.Add(new FileTraceListener($"{Config.DataPath}/{DateTime.Now:yyyy_MM_dd_HH_mm_ss}.log"));

@@ -14,6 +14,9 @@
         KeyInfo,
         NicknameUpdate,
         Goodbye,
-        PrivateMessage
+        PrivateMessage,
+        StatusUpdate,
+        Ping,
+        Pong
     }
 }

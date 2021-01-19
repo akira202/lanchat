@@ -129,14 +129,11 @@
 /____/\_,_/_//_/\__/_//_/\_,_/\__/____/
     </value>
   </data>
-    <data name="Manual_Connect" xml:space="preserve">
+    <data name="Help_connect" xml:space="preserve">
         <value>Syntax: /connect &lt;ip&gt; &lt;port&gt;</value>
     </data>
-    <data name="Manual_Help" xml:space="preserve">
-    <value>
-The latest version can be found on https://github.com/tofudd/lanchat/releases
-        
-Start options:
+    <data name="Help" xml:space="preserve">
+        <value>Start options:
 --debug (-d)      Show logs      
 --loopback (-l)   Connect with localhost after start        
 --server (-s)     Start only sever
@@ -144,14 +141,15 @@ Start options:
 --no-udp (-b)     Start without broadcast
         
 Commands:
-connect   disconnect   help
-list      nickname     exit
+connect   disconnect
+list      nickname     m
 block     unblock      blocked
-m        
-        
+afk       dnd          online
+exit      ping         help
+            
 Try /help &lt;command&gt; for detailed help.
     </value>
-  </data>
+    </data>
     <data name="Ui_WindowTitle" xml:space="preserve">
     <value>Lanchat</value>
   </data>
@@ -164,7 +162,7 @@ Try /help &lt;command&gt; for detailed help.
     <data name="Info_ManualNotFound" xml:space="preserve">
     <value>Manual not found</value>
   </data>
-    <data name="Manual_Nick" xml:space="preserve">
+    <data name="Help_nick" xml:space="preserve">
     <value>Syntax: /nick &lt;new_nick&gt;</value>
   </data>
     <data name="Info_WrongNickname" xml:space="preserve">
@@ -173,13 +171,13 @@ Try /help &lt;command&gt; for detailed help.
     <data name="Info_SelfNicknameChanged" xml:space="preserve">
     <value>Nickname changed</value>
   </data>
-    <data name="Manual_Disconnect" xml:space="preserve">
+    <data name="Help_disconnect" xml:space="preserve">
         <value>Syntax: /disconnect &lt;short id&gt;</value>
     </data>
-    <data name="Manual_Block" xml:space="preserve">
+    <data name="Help_block" xml:space="preserve">
         <value>Syntax: /block &lt;ip | short id&gt;</value>
     </data>
-    <data name="Manual_Unblock" xml:space="preserve">
+    <data name="Help_unblock" xml:space="preserve">
         <value>Syntax: /unblock &lt;ip&gt;</value>
     </data>
     <data name="Info_NotFound" xml:space="preserve">
@@ -212,7 +210,7 @@ Try /help &lt;command&gt; for detailed help.
     <data name="Info_NicknameChanged" xml:space="preserve">
         <value>changed nickname to</value>
     </data>
-    <data name="Manual_M" xml:space="preserve">
+    <data name="Help_m" xml:space="preserve">
         <value>Send private message.
 Syntax: /m &lt;short id&gt; &lt;message&gt;</value>
     </data>
@@ -224,5 +222,8 @@ Syntax: /m &lt;short id&gt; &lt;message&gt;</value>
     </data>
     <data name="Info_DetectedList" xml:space="preserve">
         <value>Detected nodes</value>
+    </data>
+    <data name="Help_ping" xml:space="preserve">
+        <value>Syntax: /ping &lt;short id&gt;</value>
     </data>
 </root>

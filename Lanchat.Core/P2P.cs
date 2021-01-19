@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -27,7 +27,8 @@ namespace Lanchat.Core
 
             server = new Server(IPAddress.IPv6Any, CoreConfig.ServerPort);
             server.SessionCreated += OnSessionCreated;
-            CoreConfig.NicknameChanged += OnNicknameChanged;
+
+            CoreConfig.PropertyChanged += CoreConfigOnPropertyChanged;
 
             broadcastService = new BroadcastService();
             broadcastService.BroadcastReceived += BroadcastReceived;
@@ -60,6 +61,20 @@ namespace Lanchat.Core
                     if (!Nodes.Any(y => Equals(y.Endpoint.Address, x.IpAddress))) list.Add(x);
                 });
                 return list;
+            }
+        }
+
+        private void CoreConfigOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "Nickname":
+                    Nodes.ForEach(x => x.NetworkOutput.SendNicknameUpdate(CoreConfig.Nickname));
+                    break;
+
+                case "Status":
+                    Nodes.ForEach(x => x.NetworkOutput.SendStatusUpdate(CoreConfig.Status));
+                    break;
             }
         }
 
@@ -177,6 +192,7 @@ namespace Lanchat.Core
         // Try connect to every node from list
         private void OnNodesListReceived(object sender, List<IPAddress> list)
         {
+            if (!CoreConfig.AutomaticConnecting) return;
             list.ForEach(x =>
             {
                 try
@@ -185,15 +201,12 @@ namespace Lanchat.Core
                 }
                 catch (Exception e)
                 {
-                    Trace.WriteLine($"Node connection error: {e.Message}");
+                    if (e is not ArgumentException)
+                    {
+                        throw;
+                    }
                 }
             });
-        }
-
-        // Broadcast new nickname
-        private void OnNicknameChanged(object sender, EventArgs e)
-        {
-            Nodes.ForEach(x => x.NetworkOutput.SendNicknameUpdate(CoreConfig.Nickname));
         }
 
         // UDP broadcast received

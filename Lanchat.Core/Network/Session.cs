@@ -14,7 +14,7 @@ namespace Lanchat.Core.Network
         }
 
         public IPEndPoint Endpoint => (IPEndPoint) Socket.RemoteEndPoint;
-        public bool EnableReconnecting { get; set; } //TODO: This one smells
+        public bool EnableReconnecting { get; set; }
         public event EventHandler Connected;
         public event EventHandler<bool> Disconnected;
         public event EventHandler<string> DataReceived;

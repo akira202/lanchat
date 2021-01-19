@@ -1,16 +1,60 @@
-﻿using Lanchat.Terminal.Properties;
+﻿using System;
+using ConsoleGUI.Controls;
+using Lanchat.Core.Models;
 using Lanchat.Terminal.UserInterface;
 
 namespace Lanchat.Terminal.Commands
 {
-    public static class List
+    public class List : ICommand
     {
-        public static void Execute()
+        public string Alias { get; set; } = "list";
+        public int ArgsCount { get; set; }
+
+        public void Execute(string[] _)
         {
-            Ui.Log.Add($"{Resources.Info_ConnectedList} ({Program.Network.Nodes.Count})");
-            Program.Network.Nodes.ForEach(x => Ui.Log.Add($"{x.Nickname} ({x.Endpoint})"));
-            Ui.Log.Add($"{Resources.Info_DetectedList} ({Program.Network.DetectedNodes.Count})");
-            Program.Network.DetectedNodes.ForEach(x => Ui.Log.Add($"{x.Nickname} ({x.IpAddress})"));
+            Program.Network.Nodes.ForEach(x =>
+            {
+                var status = new TextBlock();
+
+                switch (x.Status)
+                {
+                    case Status.Online:
+                        status.Text = "Online";
+                        status.Color = ConsoleColor.Green;
+                        break;
+
+                    case Status.AwayFromKeyboard:
+                        status.Text = "Afk";
+                        status.Color = ConsoleColor.Yellow;
+                        break;
+
+                    case Status.DoNotDisturb:
+                        status.Text = "Dnd";
+                        status.Color = ConsoleColor.Red;
+                        break;
+                }
+
+                var line = new[]
+                {
+                    new TextBlock {Text = $"{x.Nickname} (", Color = ConsoleColor.White},
+                    status,
+                    new TextBlock {Text = ")", Color = ConsoleColor.White}
+                };
+
+                Ui.Log.AddCustomTextBlock(line);
+            });
+
+            Program.Network.DetectedNodes.ForEach(x =>
+            {
+                var line = new[]
+                {
+                    new TextBlock {Text = $"{x.Nickname} (", Color = ConsoleColor.White},
+                    new TextBlock {Text = "Detected", Color = ConsoleColor.DarkCyan},
+                    new TextBlock {Text = ")", Color = ConsoleColor.White}
+                };
+
+                Ui.Log.AddCustomTextBlock(line);
+            });
         }
     }
 }

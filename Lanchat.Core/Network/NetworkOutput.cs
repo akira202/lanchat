@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
-using System.Threading;
 using Lanchat.Core.Models;
 
 namespace Lanchat.Core.Network
@@ -28,7 +28,6 @@ namespace Lanchat.Core.Network
         public void SendMessage(string content)
         {
             if (!node.Ready) return;
-
             SendData(DataTypes.Message, node.Encryption.Encrypt(content));
         }
 
@@ -39,8 +38,16 @@ namespace Lanchat.Core.Network
         public void SendPrivateMessage(string content)
         {
             if (!node.Ready) return;
-
             SendData(DataTypes.PrivateMessage, node.Encryption.Encrypt(content));
+        }
+
+        /// <summary>
+        ///     Send ping.
+        /// </summary>
+        public void SendPing()
+        {
+            node.PingSendTime = DateTime.Now;
+            SendData(DataTypes.Ping);
         }
 
         internal void SendHandshake()
@@ -48,6 +55,7 @@ namespace Lanchat.Core.Network
             var handshake = new Handshake
             {
                 Nickname = CoreConfig.Nickname,
+                Status = CoreConfig.Status,
                 PublicKey = node.Encryption.ExportPublicKey()
             };
 
@@ -56,8 +64,6 @@ namespace Lanchat.Core.Network
 
         internal void SendKey()
         {
-            // TODO: Sometimes handshake and key are sent to server in one packet. This should be fixed in better way.
-            Thread.Sleep(100);
             var keyInfo = node.Encryption.ExportAesKey();
             SendData(DataTypes.KeyInfo, keyInfo);
         }
@@ -76,6 +82,16 @@ namespace Lanchat.Core.Network
         internal void SendGoodbye()
         {
             SendData(DataTypes.Goodbye);
+        }
+
+        internal void SendStatusUpdate(Status status)
+        {
+            SendData(DataTypes.StatusUpdate, status);
+        }
+
+        internal void SendPong()
+        {
+            SendData(DataTypes.Pong);
         }
 
         private void SendData(DataTypes dataType, object content = null)

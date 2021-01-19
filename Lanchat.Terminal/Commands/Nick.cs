@@ -3,22 +3,13 @@ using Lanchat.Terminal.UserInterface;
 
 namespace Lanchat.Terminal.Commands
 {
-    public static class Nick
+    public class Nick : ICommand
     {
-        public static void Execute(string[] args)
+        public string Alias { get; set; } = "nick";
+        public int ArgsCount { get; set; } = 1;
+
+        public void Execute(string[] args)
         {
-            if (args == null || args.Length < 1)
-            {
-                Ui.Log.Add(Resources.Manual_Connect);
-                return;
-            }
-
-            if (args.Length < 1)
-            {
-                Ui.Log.Add(Resources.Manual_Nick);
-                return;
-            }
-
             var nickname = args[0].Trim();
             if (nickname.Length >= 20 || string.IsNullOrWhiteSpace(nickname))
             {

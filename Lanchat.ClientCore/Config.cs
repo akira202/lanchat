@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -14,8 +13,9 @@ namespace Lanchat.ClientCore
     {
         private static int _port = 3645;
         private static int _broadcastPort = 3646;
-        private static string _nickname = "user";
+        private static string _nickname = NicknamesGenerator.GimmeNickname();
         private static List<string> _blockedAddresses = new();
+        private static bool _automaticConnecting = true;
 
         public List<string> BlockedAddresses
         {
@@ -56,6 +56,17 @@ namespace Lanchat.ClientCore
             {
                 _nickname = value;
                 CoreConfig.Nickname = value;
+                Save();
+            }
+        }
+
+        public bool AutomaticConnecting
+        {
+            get => _automaticConnecting;
+            set
+            {
+                _automaticConnecting = value;
+                CoreConfig.AutomaticConnecting = value;
                 Save();
             }
         }
@@ -113,7 +124,6 @@ namespace Lanchat.ClientCore
             catch (Exception e)
             {
                 if (!(e is FileNotFoundException) && !(e is DirectoryNotFoundException) && !(e is JsonException)) throw;
-                Trace.WriteLine("[APP] Config load error");
                 config = new Config();
                 config.Save();
             }
@@ -126,17 +136,13 @@ namespace Lanchat.ClientCore
             try
             {
                 var configFileDirectory = Path.GetDirectoryName(ConfigPath);
-                if (!Directory.Exists(configFileDirectory))
-                {
-                    Directory.CreateDirectory(configFileDirectory!);
-                }
+                if (!Directory.Exists(configFileDirectory)) Directory.CreateDirectory(configFileDirectory!);
                 File.WriteAllText(ConfigPath,
                     JsonSerializer.Serialize(this, new JsonSerializerOptions {WriteIndented = true}));
             }
             catch (Exception e)
             {
                 if (!(e is DirectoryNotFoundException) && !(e is UnauthorizedAccessException)) throw;
-                Trace.WriteLine(e.Message);
             }
         }
     }

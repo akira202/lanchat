@@ -1,8 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Lanchat.Core.Models;
 
 namespace Lanchat.Core
 {
@@ -11,7 +13,8 @@ namespace Lanchat.Core
     /// </summary>
     public static class CoreConfig
     {
-        private static string _nickname;
+        private static string _nickname = "user";
+        private static Status _status = Status.Online;
 
         /// <summary>
         ///     User nickname.
@@ -22,9 +25,22 @@ namespace Lanchat.Core
             set
             {
                 if (_nickname == value) return;
-
                 _nickname = value;
-                NicknameChanged?.Invoke(null, EventArgs.Empty);
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        ///     User status.
+        /// </summary>
+        public static Status Status
+        {
+            get => _status;
+            set
+            {
+                if (_status == value) return;
+                _status = value;
+                OnPropertyChanged();
             }
         }
 
@@ -49,6 +65,11 @@ namespace Lanchat.Core
         public static int MaxNicknameLenght { get; set; } = 20;
 
         /// <summary>
+        ///     Enable automatic connecting to nodes from received list.
+        /// </summary>
+        public static bool AutomaticConnecting { get; set; } = true;
+
+        /// <summary>
         ///     Blocked IP addresses.
         /// </summary>
         public static List<IPAddress> BlockedAddresses { get; set; } = new();
@@ -63,7 +84,14 @@ namespace Lanchat.Core
                 }
             };
 
-        // Config events
-        internal static event EventHandler NicknameChanged;
+        /// <summary>
+        ///     Invoked for properties like nickname or status.
+        /// </summary>
+        public static event PropertyChangedEventHandler PropertyChanged;
+
+        private static void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(null, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

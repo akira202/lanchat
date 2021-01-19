@@ -1,6 +1,8 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Net.Sockets;
 using Lanchat.Core;
+using Lanchat.Core.Models;
 using Lanchat.Terminal.Properties;
 using Lanchat.Terminal.UserInterface;
 
@@ -15,12 +17,35 @@ namespace Lanchat.Terminal
             this.node = node;
             node.NetworkInput.MessageReceived += OnMessageReceived;
             node.NetworkInput.PrivateMessageReceived += OnPrivateMessageReceived;
+            node.NetworkInput.PongReceived += OnPongReceived;
             node.Connected += OnConnected;
             node.Disconnected += OnDisconnected;
             node.HardDisconnect += OnHardDisconnected;
             node.SocketErrored += OnSocketErrored;
-            node.NicknameChanged += OnNicknameChanged;
             node.CannotConnect += OnCannotConnect;
+            node.PropertyChanged += OnPropertyChanged;
+        }
+
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "Status":
+                    var status = node.Status switch
+                    {
+                        Status.Online => "online",
+                        Status.AwayFromKeyboard => "afk",
+                        Status.DoNotDisturb => "dnd",
+                        _ => ""
+                    };
+                    Ui.Log.Add($"{node.Nickname} changed status to {status}");
+                    break;
+
+                case "Nickname":
+                    if (!node.Ready) return;
+                    Ui.Log.Add($"{node.PreviousNickname} is now {node.Nickname}");
+                    break;
+            }
         }
 
         private void OnConnected(object sender, EventArgs e)
@@ -56,14 +81,15 @@ namespace Lanchat.Terminal
             Ui.Log.Add($"{Resources.Info_ConnectionError}: {node.Nickname} / {e}");
         }
 
-        private void OnNicknameChanged(object sender, string e)
-        {
-            Ui.Log.Add($"{e} {Resources.Info_NicknameChanged} {node.Nickname}");
-        }
-
         private void OnCannotConnect(object sender, EventArgs e)
         {
             Ui.Log.Add($"{Resources.Info_CannotConnect}: {node.Endpoint}");
+        }
+
+        private void OnPongReceived(object sender, TimeSpan? e)
+        {
+            if (e != null)
+                Ui.Log.Add($"Ping to {node.Nickname} is {e.Value.Milliseconds}ms");
         }
     }
 }

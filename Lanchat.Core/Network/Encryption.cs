@@ -26,6 +26,7 @@ namespace Lanchat.Core.Network
             localRsa?.Dispose();
             remoteAes?.Dispose();
             remoteRsa?.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         internal PublicKey ExportPublicKey()
@@ -79,13 +80,21 @@ namespace Lanchat.Core.Network
 
         internal string Decrypt(string text)
         {
-            var encryptedBytes = Convert.FromBase64String(text);
-            var decryptor = localAes.CreateDecryptor();
-            using var msDecrypt = new MemoryStream(encryptedBytes);
-            using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
-            using var srDecrypt = new StreamReader(csDecrypt);
-            var plaintext = srDecrypt.ReadToEnd();
-            return plaintext;
+            try
+            {
+                var encryptedBytes = Convert.FromBase64String(text);
+                var decryptor = localAes.CreateDecryptor();
+                using var msDecrypt = new MemoryStream(encryptedBytes);
+                using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
+                using var srDecrypt = new StreamReader(csDecrypt);
+                var plaintext = srDecrypt.ReadToEnd();
+                return plaintext;
+            }
+            catch (Exception e)
+            {
+                if (e is not CryptographicException && e is not FormatException) throw;
+                return null;
+            }
         }
 
         private string RsaEncrypt(byte[] bytes)

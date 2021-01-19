@@ -2,9 +2,12 @@
 
 namespace Lanchat.Terminal.Commands
 {
-    public static class Exit
+    public class Exit : ICommand
     {
-        public static void Execute()
+        public string Alias { get; set; } = "exit";
+        public int ArgsCount { get; set; }
+
+        public void Execute(string[] _)
         {
             Console.ResetColor();
             Console.Clear();
