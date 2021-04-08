@@ -1,8 +1,8 @@
 ﻿namespace Lanchat.Core.Models
 {
-    public class KeyInfo
+    internal class KeyInfo
     {
-        public byte[] AesKey { get; set; }
-        public byte[] AesIv { get; set; }
+        public byte[] AesKey { get; init; }
+        public byte[] AesIv { get; init; }
     }
 }

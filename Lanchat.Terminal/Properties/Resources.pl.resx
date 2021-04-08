@@ -1,3 +1,4 @@
+<!-- ReSharper disable MarkupTextTypo -->
 <root>
     <resheader name="resmimetype">
         <value>text/microsoft-resx</value>
@@ -52,9 +53,6 @@ Użyj polecenia /help &lt;polecenie&gt; aby wyświetlić szczegółową pomoc.
     </data>
     <data name="_PortBusy" xml:space="preserve">
         <value>Port zajęty, nie można uruchomić serwera. Spróbuj zmienić port w pliku konfiguracyjnym.</value>
-    </data>
-    <data name="_Reconnecting" xml:space="preserve">
-        <value>Rozłączono z {0}.  Trwa ponowne łączenie.</value>
     </data>
     <data name="_SelfNicknameChanged" xml:space="preserve">
         <value>Nick został zmieniony</value>
@@ -114,8 +112,8 @@ Użyj polecenia /help &lt;polecenie&gt; aby wyświetlić szczegółową pomoc.
     <data name="_FileReceived" xml:space="preserve">
         <value>Plik od {0} zapisany w {1}</value>
     </data>
-    <data name="_FileExchangeError" xml:space="preserve">
-        <value>Błąd wymiany plików: {0}</value>
+    <data name="_FileTransferError" xml:space="preserve">
+        <value>Błąd wymiany plików z {0}</value>
     </data>
     <data name="_FileRequestAccepted" xml:space="preserve">
         <value>{0} zaakceptował twój plik. Jest on wysyłany.</value>
@@ -130,7 +128,7 @@ Użyj polecenia /help &lt;polecenie&gt; aby wyświetlić szczegółową pomoc.
         <value>Nie można wysyłać wielu plików jednocześnie.</value>
     </data>
     <data name="_NoFileReceiveRequest" xml:space="preserve">
-        <value>Brak próśb odebranie pliku</value>
+        <value>Brak przesyłanych plików</value>
     </data>
     <data name="Help_send" xml:space="preserve">
         <value>Składnia: /send &lt;krótkie id&gt; &lt;ścieżka do pliku&gt;</value>
@@ -144,7 +142,10 @@ Użyj polecenia /help &lt;polecenie&gt; aby wyświetlić szczegółową pomoc.
     <data name="_FileTransferFinished" xml:space="preserve">
         <value>Wymiania plików z {0} zakończona</value>
     </data>
-    <data name="_FileTransfer" xml:space="preserve">
-        <value>Wymiana plików: {0}% / {1}</value>
+    <data name="_AlreadyBlocked" xml:space="preserve">
+        <value>Adres jest już zablokowany</value>
+    </data>
+    <data name="_InvalidCommand" xml:space="preserve">
+        <value>Nieprawidłowa komenda</value>
     </data>
 </root>

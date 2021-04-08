@@ -1,43 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using Lanchat.Core.Models;
+using System.Threading.Tasks;
+using Lanchat.Core.Extensions;
 using Lanchat.Core.Network;
-using Lanchat.Core.System;
+using Lanchat.Core.NodesDetection;
+using Lanchat.Core.P2PHandlers;
 
 namespace Lanchat.Core
 {
+    /// <summary>
+    ///     Main class representing network in P2P mode.
+    /// </summary>
     public class P2P
     {
+        internal readonly IConfig Config;
+        private readonly P2PInternalHandlers networkInternalHandlers;
         internal readonly List<Node> OutgoingConnections = new();
-        private readonly P2PInternalHandlers p2PInternalHandlers;
-        private readonly Server server;
+        internal readonly Server Server;
 
         /// <summary>
-        ///     Initialize p2p mode.
+        ///     Initialize P2P mode.
         /// </summary>
-        public P2P()
+        public P2P(IConfig config)
         {
-            p2PInternalHandlers = new P2PInternalHandlers(this);
+            Config = config;
 
-            server = CoreConfig.UseIPv6
-                ? new Server(IPAddress.IPv6Any, CoreConfig.ServerPort)
-                : new Server(IPAddress.Any, CoreConfig.ServerPort);
+            Server = Config.UseIPv6
+                ? new Server(IPAddress.IPv6Any, Config.ServerPort, Config)
+                : new Server(IPAddress.Any, Config.ServerPort, Config);
 
-            server.SessionCreated += p2PInternalHandlers.OnSessionCreated;
+            NodesDetection = new NodesDetector(Config);
+            Broadcasting = new Broadcasting(this);
 
-            CoreConfig.PropertyChanged += CoreConfigOnPropertyChanged;
-
-            Broadcasting = new Broadcasting();
+            networkInternalHandlers = new P2PInternalHandlers(this);
+            _ = new ConfigObserver(this);
         }
 
-        /// <summary>
-        ///     Detecting nodes in network.
-        /// </summary>
-        public Broadcasting Broadcasting { get; }
+        /// <see cref="NodesDetection" />
+        public NodesDetector NodesDetection { get; }
 
         /// <summary>
         ///     List of connected nodes.
@@ -48,39 +51,29 @@ namespace Lanchat.Core
             {
                 var nodes = new List<Node>();
                 nodes.AddRange(OutgoingConnections);
-                nodes.AddRange(server.IncomingConnections);
+                nodes.AddRange(Server.IncomingConnections);
                 return nodes.Where(x => x.Ready).ToList();
             }
         }
 
         /// <summary>
+        ///     Send data to all nodes.
+        /// </summary>
+        public Broadcasting Broadcasting { get; }
+
+        /// <summary>
         ///     New node connected. After receiving this handlers for node events can be created.
         /// </summary>
-        public event EventHandler<Node> ConnectionCreated;
+        public event EventHandler<Node> NodeCreated;
 
         /// <summary>
         ///     Start server.
         /// </summary>
-        public void StartServer()
+        public void Start()
         {
-            server.Start();
-        }
-
-        /// <summary>
-        ///     Start broadcasting.
-        /// </summary>
-        public void StartBroadcast()
-        {
-            Broadcasting.Start();
-        }
-
-        /// <summary>
-        ///     Send message to all nodes.
-        /// </summary>
-        /// <param name="message">Message content.</param>
-        public void BroadcastMessage(string message)
-        {
-            Nodes.ForEach(x => x.Messaging.SendMessage(message));
+            if (Config.StartServer) Server.Start();
+            if (Config.NodesDetection) NodesDetection.Start();
+            if (Config.ConnectToSaved) Config.SavedAddresses.ForEach(x => Connect(x));
         }
 
         /// <summary>
@@ -88,51 +81,41 @@ namespace Lanchat.Core
         /// </summary>
         /// <param name="ipAddress">Node IP address.</param>
         /// <param name="port">Node port.</param>
-        public void Connect(IPAddress ipAddress, int? port = null)
+        public Task<bool> Connect(IPAddress ipAddress, int? port = null)
         {
-            // Use port from config if it's null
-            port ??= CoreConfig.ServerPort;
+            var tcs = new TaskCompletionSource<bool>();
+            port ??= Config.ServerPort;
+            CheckAddress(ipAddress);
+            var client = new Client(ipAddress, port.Value);
+            var node = new Node(client, Config, false);
+            node.Resolver.RegisterHandler(new NodesListHandler(this));
+            OutgoingConnections.Add(node);
+            SubscribeEvents(node, tcs);
+            OnNodeCreated(node);
+            client.ConnectAsync();
+            return tcs.Task;
+        }
 
-            // Throw if node is blocked
-            if (CoreConfig.BlockedAddresses.Contains(ipAddress)) throw new ArgumentException("Node blocked");
-
-            // Throw if node already connected
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
+        private void CheckAddress(IPAddress ipAddress)
+        {
+            if (Config.BlockedAddresses.Contains(ipAddress)) throw new ArgumentException("Node blocked");
             if (Nodes.Any(x => x.NetworkElement.Endpoint.Address.Equals(ipAddress)))
                 throw new ArgumentException("Already connected to this node");
-
-            // Throw if local address
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            if (host.AddressList.Where(ip => ip.AddressFamily == AddressFamily.InterNetwork).Contains(ipAddress))
-                throw new ArgumentException("Illegal IP address. Cannot connect");
-
-            var client = new Client(ipAddress, port.Value);
-            var node = new Node(client);
-            node.NetworkInput.ApiHandlers.Add(new P2PApiHandlers(this));
-            OutgoingConnections.Add(node);
-            node.Connected += p2PInternalHandlers.OnConnected;
-            node.HardDisconnect += p2PInternalHandlers.OnHardDisconnect;
-            node.CannotConnect += p2PInternalHandlers.OnCannotConnect;
-            ConnectionCreated?.Invoke(this, node);
-            client.ConnectAsync();
         }
 
-        internal void OnConnectionCreated(Node e)
+        private void SubscribeEvents(Node node, TaskCompletionSource<bool> tcs)
         {
-            ConnectionCreated?.Invoke(this, e);
+            node.Connected += (_, _) => { tcs.TrySetResult(true); };
+            node.CannotConnect += (_, _) => { tcs.TrySetResult(false); };
+            node.Connected += networkInternalHandlers.OnConnected;
+            node.Disconnected += networkInternalHandlers.CloseNode;
+            node.CannotConnect += networkInternalHandlers.CloseNode;
         }
 
-        private void CoreConfigOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        internal void OnNodeCreated(Node e)
         {
-            switch (e.PropertyName)
-            {
-                case "Nickname":
-                    Nodes.ForEach(x => x.NetworkOutput.SendUserData(DataTypes.NicknameUpdate, CoreConfig.Nickname));
-                    break;
-
-                case "Status":
-                    Nodes.ForEach(x => x.NetworkOutput.SendUserData(DataTypes.StatusUpdate, CoreConfig.Status));
-                    break;
-            }
+            NodeCreated?.Invoke(this, e);
         }
     }
 }

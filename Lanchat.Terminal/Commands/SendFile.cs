@@ -8,15 +8,15 @@ namespace Lanchat.Terminal.Commands
 {
     public class SendFile : ICommand
     {
-        public string Alias { get; set; } = "send";
-        public int ArgsCount { get; set; } = 2;
+        public string Alias { get; } = "send";
+        public int ArgsCount { get; } = 2;
 
         public void Execute(string[] args)
         {
             var node = Program.Network.Nodes.Find(x => x.ShortId == args[0]);
             if (node == null)
             {
-                Ui.Log.Add(Resources._UserNotFound);
+                Ui.Log.AddError(Resources._UserNotFound);
                 return;
             }
 
@@ -33,11 +33,11 @@ namespace Lanchat.Terminal.Commands
                     case SecurityException:
                     case PathTooLongException:
                     case ArgumentException:
-                        Ui.Log.Add(string.Format(Resources._CannotAccessFile, args[1]));
+                        Ui.Log.AddError(string.Format(Resources._CannotAccessFile, args[1]));
                         break;
-                    
+
                     case InvalidOperationException:
-                        Ui.Log.Add(Resources._FileTransferInProgress);
+                        Ui.Log.AddError(Resources._FileTransferInProgress);
                         break;
                 }
             }

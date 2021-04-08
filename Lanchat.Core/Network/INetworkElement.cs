@@ -20,15 +20,10 @@ namespace Lanchat.Core.Network
         Guid Id { get; }
 
         /// <summary>
-        ///     Enable automatic reconnecting (only for client side).
-        /// </summary>
-        bool EnableReconnecting { get; set; }
-
-        /// <summary>
         ///     Send data.
         /// </summary>
         /// <param name="text">Content.</param>
-        void SendAsync(string text);
+        void Send(string text);
 
         /// <summary>
         ///     Close client or session.
@@ -36,14 +31,9 @@ namespace Lanchat.Core.Network
         void Close();
 
         /// <summary>
-        ///     Network element connected.
-        /// </summary>
-        event EventHandler Connected;
-
-        /// <summary>
         ///     Network element disconnected.
         /// </summary>
-        event EventHandler<bool> Disconnected;
+        event EventHandler Disconnected;
 
         /// <summary>
         ///     Network element socket errored.
@@ -54,10 +44,5 @@ namespace Lanchat.Core.Network
         ///     Network element received data.
         /// </summary>
         event EventHandler<string> DataReceived;
-        
-        /// <summary>
-        ///     Network element is server session.
-        /// </summary>
-        bool IsSession { get; }
     }
 }

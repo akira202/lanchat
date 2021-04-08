@@ -1,90 +1,89 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Lanchat.Core.API;
 using Lanchat.Core.Chat;
 using Lanchat.Core.Encryption;
 using Lanchat.Core.FileTransfer;
 using Lanchat.Core.Models;
 using Lanchat.Core.Network;
-using Lanchat.Core.NetworkIO;
-using Lanchat.Core.System;
+using Lanchat.Core.NodeHandlers;
 
 namespace Lanchat.Core
 {
+    /// <summary>
+    ///     Connected user.
+    /// </summary>
     public class Node : IDisposable, INotifyPropertyChanged, INodeState
     {
-        internal readonly Encryptor Encryptor;
+        private readonly IConfig config;
 
-        /// <summary>
-        ///     File sending.
-        /// </summary>
+        internal readonly PublicKeyEncryption PublicKeyEncryption;
+
+        /// <see cref="FileReceiver" />
         public readonly FileReceiver FileReceiver;
 
-        /// <summary>
-        ///     File receiving.
-        /// </summary>
+        /// <see cref="FileSender" />
         public readonly FileSender FileSender;
 
-        /// <summary>
-        ///     Messages sending and receiving.
-        /// </summary>
+        internal readonly bool IsSession;
+
+        /// <see cref="Messaging" />
         public readonly Messaging Messaging;
 
-        /// <summary>
-        ///     TCP session.
-        /// </summary>
+        /// <see cref="INetworkElement" />
         public readonly INetworkElement NetworkElement;
 
-        internal readonly NetworkInput NetworkInput;
-        internal readonly INetworkOutput NetworkOutput;
+        /// <see cref="NetworkOutput" />
+        public readonly NetworkOutput NetworkOutput;
 
+        /// <see cref="Resolver" />
+        public readonly Resolver Resolver;
+
+        internal bool HandshakeReceived;
         private string nickname;
         private string previousNickname;
         private Status status;
+        internal readonly SymmetricEncryption SymmetricEncryption;
 
-
-        /// <summary>
-        ///     Initialize node.
-        /// </summary>
-        /// <param name="networkElement">TCP client or session.</param>
-        public Node(INetworkElement networkElement)
+        internal Node(INetworkElement networkElement, IConfig config, bool isSession)
         {
+            this.config = config;
+            IsSession = isSession;
             NetworkElement = networkElement;
             NetworkOutput = new NetworkOutput(NetworkElement, this);
-            Encryptor = new Encryptor();
-            Messaging = new Messaging(NetworkOutput, Encryptor);
-            FileReceiver = new FileReceiver(NetworkOutput, Encryptor);
-            FileSender = new FileSender(NetworkOutput, Encryptor);
+            PublicKeyEncryption = new PublicKeyEncryption();
+            SymmetricEncryption = new SymmetricEncryption(PublicKeyEncryption);
+            Messaging = new Messaging(NetworkOutput, SymmetricEncryption);
+            FileReceiver = new FileReceiver(NetworkOutput, SymmetricEncryption, config);
+            FileSender = new FileSender(NetworkOutput, SymmetricEncryption);
 
-            NetworkInput = new NetworkInput(this);
-            NetworkInput.ApiHandlers.Add(new InitializationApiHandlers(this));
-            NetworkInput.ApiHandlers.Add(new NodeApiHandlers(this));
-            NetworkInput.ApiHandlers.Add(new MessagingApiHandlers(Messaging));
-            NetworkInput.ApiHandlers.Add(FileReceiver);
-            NetworkInput.ApiHandlers.Add(new FileTransferHandler(FileReceiver, FileSender));
+            Resolver = new Resolver(this);
+            Resolver.RegisterHandler(new HandshakeHandler(this));
+            Resolver.RegisterHandler(new KeyInfoHandler(this));
+            Resolver.RegisterHandler(new ConnectionControlHandler(this));
+            Resolver.RegisterHandler(new StatusUpdateHandler(this));
+            Resolver.RegisterHandler(new NicknameUpdateHandler(this));
+            Resolver.RegisterHandler(new MessageHandler(Messaging));
+            Resolver.RegisterHandler(new FilePartHandler(FileReceiver));
+            Resolver.RegisterHandler(new FileTransferControlHandler(FileReceiver, FileSender));
 
             NetworkElement.Disconnected += OnDisconnected;
-            NetworkElement.DataReceived += NetworkInput.ProcessReceivedData;
+            NetworkElement.DataReceived += Resolver.OnDataReceived;
             NetworkElement.SocketErrored += (s, e) => SocketErrored?.Invoke(s, e);
 
-            if (NetworkElement.IsSession) SendHandshakeAndWait();
+            if (IsSession) SendHandshake();
 
             // Check is connection established successful after timeout.
             Task.Delay(5000).ContinueWith(_ =>
             {
-                if (!Ready && !UnderReconnecting) NetworkElement.Close();
+                if (!Ready) OnCannotConnect();
             });
         }
 
         /// <summary>
-        ///     Node is under reconnecting.
-        /// </summary>
-        public bool UnderReconnecting { get; private set; }
-
-        /// <summary>
-        ///     Node nickname.
+        ///     Node user nickname.
         /// </summary>
         public string Nickname
         {
@@ -109,7 +108,7 @@ namespace Lanchat.Core
         public string ShortId => Id.GetHashCode().ToString().Substring(1, 4);
 
         /// <summary>
-        ///     User status.
+        ///     Node user status.
         /// </summary>
         public Status Status
         {
@@ -123,14 +122,17 @@ namespace Lanchat.Core
         }
 
         /// <summary>
-        ///     Close connection with node and dispose.
+        ///     Dispose node. For safe disconnect use <see cref="Disconnect" /> instead.
         /// </summary>
         public void Dispose()
         {
             NetworkElement.Close();
-            Encryptor.Dispose();
+            PublicKeyEncryption.Dispose();
+            FileSender.Dispose();
+            FileReceiver.CancelReceive();
             GC.SuppressFinalize(this);
         }
+        
 
         /// <summary>
         ///     ID of TCP client or session.
@@ -148,72 +150,57 @@ namespace Lanchat.Core
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
-        ///     Node successful connected and ready.
+        ///     Node successful connected and ready to data exchange.
         /// </summary>
         public event EventHandler Connected;
 
         /// <summary>
-        ///     Node disconnected. Trying reconnect.
+        ///     Node disconnected. Cannot reconnect.
         /// </summary>
         public event EventHandler Disconnected;
 
         /// <summary>
-        ///     Node disconnected. Cannot reconnect.
-        /// </summary>
-        public event EventHandler HardDisconnect;
-
-        /// <summary>
-        ///     Raise when connection try failed.
-        /// </summary>
-        public event EventHandler CannotConnect;
-
-        /// <summary>
-        ///     TCP session or client for this node returned error.
+        ///     TCP session or client returned error.
         /// </summary>
         public event EventHandler<SocketError> SocketErrored;
+
+        internal event EventHandler CannotConnect;
 
         /// <summary>
         ///     Disconnect from node.
         /// </summary>
         public void Disconnect()
         {
-            NetworkOutput.SendSystemData(DataTypes.Goodbye);
+            NetworkOutput.SendPrivilegedData(new ConnectionControl
+            {
+                Status = ConnectionControlStatus.RemoteClose
+            });
             Dispose();
         }
 
-        // Network elements events.
-        private void OnDisconnected(object sender, bool hardDisconnect)
+        private void OnDisconnected(object sender, EventArgs _)
         {
-            UnderReconnecting = !hardDisconnect;
-
-            // Raise event only if node was ready before.
-            if (hardDisconnect && !Ready)
-            {
-                Trace.WriteLine($"Cannot connect {Id}");
-                CannotConnect?.Invoke(this, EventArgs.Empty);
-            }
-            else if (hardDisconnect && Ready)
-            {
-                HardDisconnect?.Invoke(this, EventArgs.Empty);
-            }
-            else if (Ready)
-            {
+            if (Ready)
                 Disconnected?.Invoke(this, EventArgs.Empty);
-            }
-
-            Ready = false;
+            else
+                OnCannotConnect();
         }
 
-        internal void SendHandshakeAndWait()
+        internal void SendHandshake()
         {
             var handshake = new Handshake
             {
-                Nickname = CoreConfig.Nickname,
-                Status = CoreConfig.Status,
-                PublicKey = Encryptor.ExportPublicKey()
+                Nickname = config.Nickname,
+                Status = config.Status,
+                PublicKey = PublicKeyEncryption.ExportKey()
             };
 
-            NetworkOutput.SendSystemData(DataTypes.Handshake, handshake);
+            NetworkOutput.SendPrivilegedData(handshake);
+        }
+
+        internal void OnConnected()
+        {
+            Connected?.Invoke(this, EventArgs.Empty);
         }
 
         private void OnPropertyChanged(string propertyName = null)
@@ -221,9 +208,9 @@ namespace Lanchat.Core
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        internal void OnConnected()
+        internal void OnCannotConnect()
         {
-            Connected?.Invoke(this, EventArgs.Empty);
+            CannotConnect?.Invoke(this, EventArgs.Empty);
         }
     }
 }

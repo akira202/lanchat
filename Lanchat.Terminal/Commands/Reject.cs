@@ -6,15 +6,15 @@ namespace Lanchat.Terminal.Commands
 {
     public class Reject : ICommand
     {
-        public string Alias { get; set; } = "reject";
-        public int ArgsCount { get; set; } = 1;
+        public string Alias { get; } = "reject";
+        public int ArgsCount { get; } = 1;
 
         public void Execute(string[] args)
         {
             var node = Program.Network.Nodes.Find(x => x.ShortId == args[0]);
             if (node == null)
             {
-                Ui.Log.Add(Resources._UserNotFound);
+                Ui.Log.AddError(Resources._UserNotFound);
                 return;
             }
 
@@ -24,7 +24,7 @@ namespace Lanchat.Terminal.Commands
             }
             catch (InvalidOperationException)
             {
-                Ui.Log.Add(Resources._NoFileReceiveRequest);
+                Ui.Log.AddError(Resources._NoFileReceiveRequest);
             }
         }
     }

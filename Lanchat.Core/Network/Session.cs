@@ -14,14 +14,11 @@ namespace Lanchat.Core.Network
         }
 
         public IPEndPoint Endpoint => (IPEndPoint) Socket.RemoteEndPoint;
-        public bool EnableReconnecting { get; set; }
-        public event EventHandler Connected;
-        public event EventHandler<bool> Disconnected;
+        public event EventHandler Disconnected;
         public event EventHandler<string> DataReceived;
         public event EventHandler<SocketError> SocketErrored;
-        public bool IsSession { get; } = true;
 
-        public new void SendAsync(string text)
+        public new void Send(string text)
         {
             base.SendAsync(text);
         }
@@ -32,6 +29,8 @@ namespace Lanchat.Core.Network
             Dispose();
         }
 
+        public event EventHandler Connected;
+
         protected override void OnConnected()
         {
             Connected?.Invoke(this, EventArgs.Empty);
@@ -40,7 +39,7 @@ namespace Lanchat.Core.Network
 
         protected override void OnDisconnected()
         {
-            Disconnected?.Invoke(this, true);
+            Disconnected?.Invoke(this, EventArgs.Empty);
             Trace.WriteLine($"Session {Id} disconnected");
         }
 

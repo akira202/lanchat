@@ -1,8 +1,11 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Lanchat.Core.Models
 {
-    public class FilePart
+    internal class FilePart
     {
-        public byte[] Data { get; set; }
+        [MaxLength(1398102)] public byte[] Data { get; init; }
+
         public bool Last { get; set; }
     }
 }

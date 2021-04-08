@@ -6,8 +6,8 @@ namespace Lanchat.Terminal.Commands
 {
     public class Help : ICommand
     {
-        public string Alias { get; set; } = "help";
-        public int ArgsCount { get; set; }
+        public string Alias { get; } = "help";
+        public int ArgsCount { get; } = 0;
 
         public void Execute(string[] args)
         {
@@ -18,7 +18,7 @@ namespace Lanchat.Terminal.Commands
             else
             {
                 var commandHelp = Resources.ResourceManager.GetString($"Help_{args[0]}", CultureInfo.CurrentCulture);
-                Ui.Log.Add(commandHelp ?? Resources._ManualNotFound);
+                Ui.Log.AddError(commandHelp ?? Resources._ManualNotFound);
             }
         }
     }

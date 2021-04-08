@@ -33,7 +33,7 @@ namespace Lanchat.Terminal.UserInterface
             commands.Add(new Accept());
             commands.Add(new Reject());
             commands.Add(new Cancel());
-
+            
             this.input = input;
         }
 
@@ -49,8 +49,8 @@ namespace Lanchat.Terminal.UserInterface
                 }
                 else
                 {
-                    Ui.Log.AddMessage(input.Text, Program.Config.Nickname);
-                    Program.Network.BroadcastMessage(input.Text);
+                    Ui.Log.AddMessage(input.Text, Program.Config.Nickname, false);
+                    Program.Network.Broadcasting.SendMessage(input.Text);
                 }
             }
 
@@ -64,14 +64,20 @@ namespace Lanchat.Terminal.UserInterface
             args = args.Skip(1).ToArray();
             var command = commands.FirstOrDefault(x => x.Alias == commandAlias);
 
-            if (args.Length < command?.ArgsCount)
+            if (command == null)
+            {
+                Ui.Log.AddError(Resources._InvalidCommand);
+                return;
+            }
+            
+            if (args.Length < command.ArgsCount)
             {
                 var help = Resources.ResourceManager.GetString($"Help_{commandAlias}", CultureInfo.CurrentCulture);
                 if (help != null) Ui.Log.Add(help);
                 return;
             }
 
-            command?.Execute(args);
+            command.Execute(args);
         }
     }
 }

@@ -6,15 +6,15 @@ namespace Lanchat.Terminal.Commands
 {
     public class PrivateMessage : ICommand
     {
-        public string Alias { get; set; } = "m";
-        public int ArgsCount { get; set; } = 2;
+        public string Alias { get; } = "m";
+        public int ArgsCount { get; } = 2;
 
         public void Execute(string[] args)
         {
             var node = Program.Network.Nodes.Find(x => x.ShortId == args[0]);
             if (node == null)
             {
-                Ui.Log.Add(Resources._UserNotFound);
+                Ui.Log.AddError(Resources._UserNotFound);
                 return;
             }
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ConsoleGUI.Controls;
 using ConsoleGUI.UserDefined;
 
@@ -17,113 +16,85 @@ namespace Lanchat.Terminal.UserInterface
             Content = stackPanel;
         }
 
-        public void Add(string text)
+        public void Add(string text, ConsoleColor color = ConsoleColor.White)
         {
-            lock (lockUi)
+            foreach (var line in SplitLines(text))
             {
-                foreach (var line in Prepare(text))
+                AddTextLine(new[]
                 {
-                    stackPanel.Add(new WrapPanel
-                    {
-                        Content = new HorizontalStackPanel
-                        {
-                            Children = new[]
-                            {
-                                new TextBlock {Text = $"{DateTime.Now:HH:mm} "},
-                                new TextBlock {Text = "-", Color = ConsoleColor.Blue},
-                                new TextBlock {Text = "!"},
-                                new TextBlock {Text = "- ", Color = ConsoleColor.Blue},
-                                new TextBlock {Text = line}
-                            }
-                        }
-                    });
-                    Ui.ScrollPanel.Top = int.MaxValue;
-                }
+                    new TextBlock {Text = line, Color = color}
+                });
             }
         }
 
-        public void AddMessage(string text, string nickname = null)
+        public void AddError(string text)
         {
-            lock (lockUi)
+            Add(text, ConsoleColor.Red);
+        }
+
+        public void AddWarning(string text)
+        {
+            Add(text, ConsoleColor.Yellow);
+        }
+
+        public void AddMessage(string text, string nickname, bool privateMessage)
+        {
+            var color = privateMessage ? ConsoleColor.Magenta : ConsoleColor.White;
+            foreach (var line in SplitLines(text))
             {
-                foreach (var line in Prepare(text))
+                AddToLog(new List<TextBlock>
                 {
-                    stackPanel.Add(new WrapPanel
-                    {
-                        Content = new HorizontalStackPanel
-                        {
-                            Children = new[]
-                            {
-                                new TextBlock {Text = $"{DateTime.Now:HH:mm} "},
-                                new TextBlock {Text = "<", Color = ConsoleColor.DarkGray},
-                                new TextBlock {Text = $"{nickname}"},
-                                new TextBlock {Text = "> ", Color = ConsoleColor.DarkGray},
-                                new TextBlock {Text = line}
-                            }
-                        }
-                    });
-                    Ui.ScrollPanel.Top = int.MaxValue;
-                }
+                    new() {Text = $"{DateTime.Now:HH:mm} "},
+                    new() {Text = "<", Color = ConsoleColor.DarkGray},
+                    new() {Text = $"{nickname}"},
+                    new() {Text = "> ", Color = ConsoleColor.DarkGray},
+                    new() {Text = line, Color = color}
+                });
+                Ui.ScrollPanel.Top = int.MaxValue;
             }
         }
 
-        public void AddPrivateMessage(string text, string nickname = null)
+        public void AddTextLine(IEnumerable<TextBlock> line)
         {
-            lock (lockUi)
+            var children = new List<TextBlock>
             {
-                foreach (var line in Prepare(text))
-                {
-                    stackPanel.Add(new WrapPanel
-                    {
-                        Content = new HorizontalStackPanel
-                        {
-                            Children = new[]
-                            {
-                                new TextBlock {Text = $"{DateTime.Now:HH:mm} "},
-                                new TextBlock {Text = "<", Color = ConsoleColor.DarkGray},
-                                new TextBlock {Text = $"{nickname}", Color = ConsoleColor.Magenta},
-                                new TextBlock {Text = "> ", Color = ConsoleColor.DarkGray},
-                                new TextBlock {Text = line}
-                            }
-                        }
-                    });
-                    Ui.ScrollPanel.Top = int.MaxValue;
-                }
-            }
-        }
-
-        public void AddCustomTextBlock(IEnumerable<TextBlock> line)
-        {
-            var children = new[]
-            {
-                new TextBlock {Text = $"{DateTime.Now:HH:mm} "},
-                new TextBlock {Text = "-", Color = ConsoleColor.Blue},
-                new TextBlock {Text = "!"},
-                new TextBlock {Text = "- ", Color = ConsoleColor.Blue}
+                new() {Text = $"{DateTime.Now:HH:mm} "},
+                new() {Text = "-", Color = ConsoleColor.Blue},
+                new() {Text = "!"},
+                new() {Text = "- ", Color = ConsoleColor.Blue}
             };
+            children.AddRange(line);
+            AddToLog(children);
+            Ui.ScrollPanel.Top = int.MaxValue;
+        }
 
+        private static IEnumerable<string> SplitLines(string text)
+        {
+            if (text == null)
+                return new[]
+                {
+                    ""
+                };
+            return text.Split(new[]
+                {
+                    "\r\n", "\r", "\n"
+                },
+                StringSplitOptions.None
+            );
+        }
 
+        private void AddToLog(IEnumerable<TextBlock> textBlocks)
+        {
             lock (lockUi)
             {
                 stackPanel.Add(new WrapPanel
                 {
                     Content = new HorizontalStackPanel
                     {
-                        Children = children.Concat(line)
+                        Children = textBlocks
                     }
                 });
-                Ui.ScrollPanel.Top = int.MaxValue;
             }
-        }
-
-        private static IEnumerable<string> Prepare(string text)
-        {
-            if (text == null) return new[] {""};
-
-            return text.Split(
-                new[] {"\r\n", "\r", "\n"},
-                StringSplitOptions.None
-            );
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using Lanchat.Terminal.Properties;
 using Lanchat.Terminal.UserInterface;
 
@@ -6,27 +7,26 @@ namespace Lanchat.Terminal.Commands
 {
     public class Unblock : ICommand
     {
-        public string Alias { get; set; } = "unblock";
-        public int ArgsCount { get; set; } = 1;
+        public string Alias { get; } = "unblock";
+        public int ArgsCount { get; } = 1;
 
         public void Execute(string[] args)
         {
-            if (args == null || args.Length < 1)
+            var correct = IPAddress.TryParse(args[0], out var parsedIp);
+            if (!correct)
             {
-                Ui.Log.Add(Resources.Help_unblock);
+                Ui.Log.AddError(Resources._IncorrectValues);
                 return;
             }
-
-            var correct = IPAddress.TryParse(args[0], out var parsedIp);
-            if (correct)
+            
+            if (Program.Config.BlockedAddresses.All(x => !Equals(x, parsedIp)))
             {
-                Program.Config.RemoveBlocked(parsedIp);
-                Ui.Log.Add(string.Format(Resources._Unblocked, parsedIp));
+                Ui.Log.AddError(Resources._UserNotFound);
+                return;
             }
-            else
-            {
-                Ui.Log.Add(Resources._IncorrectValues);
-            }
+            
+            Program.Config.BlockedAddresses.Remove(parsedIp);
+            Ui.Log.Add(string.Format(Resources._Unblocked, parsedIp));
         }
     }
 }

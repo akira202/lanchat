@@ -1,8 +1,8 @@
 ﻿namespace Lanchat.Core.Models
 {
-    public class PublicKey
+    internal class PublicKey
     {
-        public byte[] RsaModulus { get; set; }
-        public byte[] RsaExponent { get; set; }
+        public byte[] RsaModulus { get; init; }
+        public byte[] RsaExponent { get; init; }
     }
 }

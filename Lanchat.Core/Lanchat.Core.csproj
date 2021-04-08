@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Version>2.6.2</Version>
+        <Version>2.7.0</Version>
         <TargetFramework>net5.0</TargetFramework>
         <Title>Lanchat.Core</Title>
         <Description>Local network P2P chat libary.</Description>
@@ -11,11 +11,17 @@
         <RepositoryUrl>https://github.com/tofudd/lanchat</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>p2p, chat, network</PackageTags>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <DocumentationMarkdown>$(MSBuildProjectDirectory)\..\Docs\Core.md</DocumentationMarkdown>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="NetCoreServer" Version="5.0.15" />
       <PackageReference Include="System.Text.Json" Version="5.0.1" />
+      <PackageReference Include="Vsxmd" Version="1.4.5">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
     </ItemGroup>
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">

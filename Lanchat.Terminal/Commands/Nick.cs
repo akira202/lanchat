@@ -5,15 +5,15 @@ namespace Lanchat.Terminal.Commands
 {
     public class Nick : ICommand
     {
-        public string Alias { get; set; } = "nick";
-        public int ArgsCount { get; set; } = 1;
+        public string Alias { get; } = "nick";
+        public int ArgsCount { get; } = 1;
 
         public void Execute(string[] args)
         {
             var nickname = args[0].Trim();
             if (nickname.Length >= 20 || string.IsNullOrWhiteSpace(nickname))
             {
-                Ui.Log.Add(Resources._WrongNickname);
+                Ui.Log.AddError(Resources._WrongNickname);
             }
             else
             {

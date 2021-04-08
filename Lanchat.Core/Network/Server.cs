@@ -7,15 +7,20 @@ using NetCoreServer;
 
 namespace Lanchat.Core.Network
 {
+    // TODO: Refactor
     internal class Server : TcpServer
     {
+        private readonly IConfig config;
+
         /// <summary>
         ///     Create server.
         /// </summary>
         /// <param name="address">Listening IP</param>
         /// <param name="port">Listening port</param>
-        internal Server(IPAddress address, int port) : base(address, port)
+        /// <param name="config">Lanchat config.</param>
+        internal Server(IPAddress address, int port, IConfig config) : base(address, port)
         {
+            this.config = config;
             OptionDualMode = true;
             IncomingConnections = new List<Node>();
         }
@@ -42,16 +47,17 @@ namespace Lanchat.Core.Network
 
             session.Connected += (_, _) =>
             {
-                if (CoreConfig.BlockedAddresses.Contains(session.Endpoint.Address))
+                if (config.BlockedAddresses.Contains(session.Endpoint.Address))
                 {
                     Trace.WriteLine($"Connection from {session.Endpoint.Address} blocked");
                     session.Close();
                 }
                 else
                 {
-                    var node = new Node(session);
+                    var node = new Node(session, config, true);
                     IncomingConnections.Add(node);
-                    node.HardDisconnect += OnHardDisconnected;
+                    node.CannotConnect += CloseNode;
+                    node.Disconnected += CloseNode;
                     SessionCreated?.Invoke(this, node);
                     Trace.WriteLine($"Session for {session.Endpoint.Address} created. Session ID: {session.Id}");
                 }
@@ -60,11 +66,13 @@ namespace Lanchat.Core.Network
             return session;
         }
 
-        private void OnHardDisconnected(object sender, EventArgs e)
+        private void CloseNode(object sender, EventArgs e)
         {
             var node = (Node) sender;
+            var id = node.Id;
             IncomingConnections.Remove(node);
             node.Dispose();
+            Trace.WriteLine($"Node {id} disposed");
         }
 
         protected override void OnError(SocketError error)

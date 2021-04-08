@@ -5,8 +5,8 @@ namespace Lanchat.Terminal.Commands
 {
     public class Disconnect : ICommand
     {
-        public string Alias { get; set; } = "disconnect";
-        public int ArgsCount { get; set; } = 1;
+        public string Alias { get; } = "disconnect";
+        public int ArgsCount { get; } = 1;
 
         public void Execute(string[] args)
         {
@@ -14,7 +14,7 @@ namespace Lanchat.Terminal.Commands
             if (node != null)
                 node.Disconnect();
             else
-                Ui.Log.Add(Resources._UserNotFound);
+                Ui.Log.AddError(Resources._UserNotFound);
         }
     }
 }

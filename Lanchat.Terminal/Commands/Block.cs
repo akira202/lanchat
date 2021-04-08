@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using Lanchat.Terminal.Properties;
 using Lanchat.Terminal.UserInterface;
 
@@ -6,8 +7,8 @@ namespace Lanchat.Terminal.Commands
 {
     public class Block : ICommand
     {
-        public string Alias { get; set; } = "block";
-        public int ArgsCount { get; set; } = 1;
+        public string Alias { get; } = "block";
+        public int ArgsCount { get; } = 1;
 
         public void Execute(string[] args)
         {
@@ -32,11 +33,17 @@ namespace Lanchat.Terminal.Commands
             }
             else
             {
-                Ui.Log.Add(Resources._IncorrectValues);
+                Ui.Log.AddError(Resources._IncorrectValues);
+                return;
+            }
+            
+            if (Program.Config.BlockedAddresses.Any(x => Equals(x, ipAddress)))
+            {
+                Ui.Log.AddError(Resources._AlreadyBlocked);
                 return;
             }
 
-            Program.Config.AddBlocked(ipAddress);
+            Program.Config.BlockedAddresses.Add(ipAddress);
             Ui.Log.Add(string.Format(Resources._Blocked, ipAddress));
         }
     }

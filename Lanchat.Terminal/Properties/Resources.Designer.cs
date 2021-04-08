@@ -153,12 +153,6 @@ namespace Lanchat.Terminal.Properties {
             }
         }
         
-        internal static string _Reconnecting {
-            get {
-                return ResourceManager.GetString("_Reconnecting", resourceCulture);
-            }
-        }
-        
         internal static string _Connected {
             get {
                 return ResourceManager.GetString("_Connected", resourceCulture);
@@ -225,9 +219,9 @@ namespace Lanchat.Terminal.Properties {
             }
         }
         
-        internal static string _FileExchangeError {
+        internal static string _FileTransferError {
             get {
-                return ResourceManager.GetString("_FileExchangeError", resourceCulture);
+                return ResourceManager.GetString("_FileTransferError", resourceCulture);
             }
         }
         
@@ -285,9 +279,15 @@ namespace Lanchat.Terminal.Properties {
             }
         }
         
-        internal static string _FileTransfer {
+        internal static string _AlreadyBlocked {
             get {
-                return ResourceManager.GetString("_FileTransfer", resourceCulture);
+                return ResourceManager.GetString("_AlreadyBlocked", resourceCulture);
+            }
+        }
+        
+        internal static string _InvalidCommand {
+            get {
+                return ResourceManager.GetString("_InvalidCommand", resourceCulture);
             }
         }
     }

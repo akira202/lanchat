@@ -1,43 +1,78 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Net;
-using System.Runtime.InteropServices;
-using System.Text.Json;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using Lanchat.Core;
+using Lanchat.Core.Models;
 
 namespace Lanchat.ClientCore
 {
-    public class Config
+    public class Config : IConfig
     {
-        private static int _port;
-        private static int _broadcastPort;
-        private static string _nickname;
-        private static List<string> _blockedAddresses;
-        private static bool _automaticConnecting;
+        private static int _port = 3645;
+        private static int _broadcastPort = 3646;
+        private static string _nickname = ConfigValues.GetNickname();
+        private static bool _automatic = true;
         private static bool _useIPv6;
-        private static string _language;
+        private static string _language = "default";
+        private static string _filesDownloadDirectory = ConfigValues.GetDownloadsDirectory();
+        private static Status _status = Status.Online;
+        private static ObservableCollection<IPAddress> _blockedAddresses = new();
+        private static ObservableCollection<IPAddress> _savedAddresses = new();
 
-        public List<string> BlockedAddresses
+        [JsonIgnore] public bool Fresh { get; set; }
+        [JsonIgnore] public bool ConnectToSaved { get; set; } = true;
+        [JsonIgnore] public bool NodesDetection { get; set; } = true;
+        [JsonIgnore] public bool StartServer { get; set; } = true;
+        
+        public string Language
+        {
+            get => _language;
+            set
+            {
+                _language = value;
+                OnPropertyChanged(nameof(Language));
+            }
+        }
+        
+        public ObservableCollection<IPAddress> BlockedAddresses
         {
             get => _blockedAddresses;
             set
             {
                 _blockedAddresses = value;
-                CoreConfig.BlockedAddresses = _blockedAddresses.Select(IPAddress.Parse).ToList();
+                OnPropertyChanged(nameof(BlockedAddresses));
             }
         }
 
-        public int Port
+        public ObservableCollection<IPAddress> SavedAddresses
+        {
+            get => _savedAddresses;
+            set
+            {
+                _savedAddresses = value;
+                OnPropertyChanged(nameof(SavedAddresses));
+            }
+        }
+
+        public Status Status
+        {
+            get => _status;
+            set
+            {
+                _status = value;
+                OnPropertyChanged(nameof(Status));
+            }
+        }
+
+        public int ServerPort
         {
             get => _port;
             set
             {
                 _port = value;
-                CoreConfig.ServerPort = value;
-                Save();
+                OnPropertyChanged(nameof(ServerPort));
             }
         }
 
@@ -47,8 +82,7 @@ namespace Lanchat.ClientCore
             set
             {
                 _broadcastPort = value;
-                CoreConfig.BroadcastPort = value;
-                Save();
+                OnPropertyChanged(nameof(BroadcastPort));
             }
         }
 
@@ -58,19 +92,27 @@ namespace Lanchat.ClientCore
             set
             {
                 _nickname = value;
-                CoreConfig.Nickname = value;
-                Save();
+                OnPropertyChanged(nameof(Nickname));
             }
         }
 
-        public bool AutomaticConnecting
+        public bool ConnectToReceivedList
         {
-            get => _automaticConnecting;
+            get => _automatic;
             set
             {
-                _automaticConnecting = value;
-                CoreConfig.AutomaticConnecting = value;
-                Save();
+                _automatic = value;
+                OnPropertyChanged(nameof(ConnectToReceivedList));
+            }
+        }
+
+        public string ReceivedFilesDirectory
+        {
+            get => _filesDownloadDirectory;
+            set
+            {
+                _filesDownloadDirectory = value;
+                OnPropertyChanged(nameof(ReceivedFilesDirectory));
             }
         }
 
@@ -80,109 +122,15 @@ namespace Lanchat.ClientCore
             set
             {
                 _useIPv6 = value;
-                CoreConfig.UseIPv6 = value;
-                Save();
+                OnPropertyChanged(nameof(UseIPv6));
             }
         }
 
-        public string Language
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            get => _language;
-            set
-            {
-                _language = value;
-                Save();
-            }
-        }
-
-        [JsonIgnore] public bool Fresh { get; set; }
-
-        public static string ConfigPath { get; private set; }
-        public static string DataPath { get; private set; }
-
-        public void AddBlocked(IPAddress ipAddress)
-        {
-            var ipString = ipAddress.ToString();
-            if (BlockedAddresses.Contains(ipString)) return;
-            BlockedAddresses.Add(ipString);
-            CoreConfig.BlockedAddresses.Add(ipAddress);
-            Save();
-        }
-
-        public void RemoveBlocked(IPAddress ipAddress)
-        {
-            BlockedAddresses.Remove(ipAddress.ToString());
-            CoreConfig.BlockedAddresses.Remove(ipAddress);
-            Save();
-        }
-
-        public static Config Load()
-        {
-            Config config;
-            try
-            {
-                var xdgConfigHome = Environment.GetEnvironmentVariable("XDG_CONFIG_HOME");
-                var xdgDataHome = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
-
-                if (xdgDataHome != null && xdgConfigHome != null)
-                {
-                    DataPath = xdgDataHome;
-                    ConfigPath = $"{xdgConfigHome}/config.json";
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    DataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/Lanchat2";
-                    ConfigPath = $"{DataPath}/config.json";
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    DataPath = Environment.GetEnvironmentVariable("HOME") + "/.Lancaht2";
-                    ConfigPath = $"{DataPath}/config.json";
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    DataPath = Environment.GetEnvironmentVariable("HOME") + "/Library/Preferences/.Lancaht2";
-                    ConfigPath = $"{DataPath}/config.json";
-                }
-
-                config = JsonSerializer.Deserialize<Config>(File.ReadAllText(ConfigPath));
-            }
-            catch (Exception e)
-            {
-                if (!(e is FileNotFoundException) &&
-                    !(e is DirectoryNotFoundException) &&
-                    !(e is JsonException)) throw;
-
-                config = new Config
-                {
-                    Port = 3645,
-                    BroadcastPort = 3646,
-                    BlockedAddresses = new List<string>(),
-                    Nickname = NicknamesGenerator.GimmeNickname(),
-                    AutomaticConnecting = true,
-                    UseIPv6 = false,
-                    Language = "default",
-                    Fresh = true
-                };
-                config.Save();
-            }
-
-            return config;
-        }
-
-        private void Save()
-        {
-            try
-            {
-                var configFileDirectory = Path.GetDirectoryName(ConfigPath);
-                if (!Directory.Exists(configFileDirectory)) Directory.CreateDirectory(configFileDirectory!);
-                File.WriteAllText(ConfigPath,
-                    JsonSerializer.Serialize(this, new JsonSerializerOptions {WriteIndented = true}));
-            }
-            catch (Exception e)
-            {
-                if (!(e is DirectoryNotFoundException) && !(e is UnauthorizedAccessException)) throw;
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

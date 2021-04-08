@@ -2,7 +2,6 @@ using System;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Lanchat.Terminal.Properties;
 
 namespace Lanchat.Terminal
 {
@@ -17,7 +16,8 @@ namespace Lanchat.Terminal
             {
                 var response = client.GetAsync("https://api.github.com/repos/tofudd/lanchat/releases/latest").Result;
                 var result = response.Content.ReadAsStringAsync().Result;
-                var lastGithubVersion = new Version(Regex.Match(result, "(?<=\"tag_name\":\")(.*)(?=\",\"target)").Value);
+                var lastGithubVersion =
+                    new Version(Regex.Match(result, "(?<=\"tag_name\":\")(.*)(?=\",\"target)").Value);
                 return Assembly.GetEntryAssembly()?.GetName().Version?.CompareTo(lastGithubVersion) == -1
                     ? lastGithubVersion.ToString()
                     : null;

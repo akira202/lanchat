@@ -8,8 +8,8 @@ namespace Lanchat.Terminal.Commands
 {
     public class List : ICommand
     {
-        public string Alias { get; set; } = "list";
-        public int ArgsCount { get; set; }
+        public string Alias { get; } = "list";
+        public int ArgsCount { get; } = 0;
 
         public void Execute(string[] _)
         {
@@ -17,6 +17,7 @@ namespace Lanchat.Terminal.Commands
             {
                 var status = new TextBlock();
 
+                // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
                 switch (x.Status)
                 {
                     case Status.Online:
@@ -42,10 +43,10 @@ namespace Lanchat.Terminal.Commands
                     new TextBlock {Text = ")", Color = ConsoleColor.White}
                 };
 
-                Ui.Log.AddCustomTextBlock(line);
+                Ui.Log.AddTextLine(line);
             });
 
-            Program.Network.Broadcasting.DetectedNodes.ToList().ForEach(x =>
+            Program.Network.NodesDetection.DetectedNodes.ToList().ForEach(x =>
             {
                 var line = new[]
                 {
@@ -54,7 +55,7 @@ namespace Lanchat.Terminal.Commands
                     new TextBlock {Text = ")", Color = ConsoleColor.White}
                 };
 
-                Ui.Log.AddCustomTextBlock(line);
+                Ui.Log.AddTextLine(line);
             });
         }
     }

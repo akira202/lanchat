@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using Lanchat.ClientCore;
 using Lanchat.Core;
@@ -17,7 +16,7 @@ namespace Lanchat.Terminal
 
         private static void Main(string[] args)
         {
-            Config = Config.Load();
+            Config = ConfigManager.Load();
 
             // Load resources
             try
@@ -26,57 +25,48 @@ namespace Lanchat.Terminal
             }
             catch
             {
-                Trace.WriteLine($"Cannot load translation. Using default.");
+                Trace.WriteLine("Cannot load translation. Using default.");
             }
-            
+
             Resources.Culture = CultureInfo.CurrentCulture;
 
             // Initialize p2p mode and ui
             try
             {
                 Ui.Start();
-                Network = new P2P();
-                Network.ConnectionCreated += (sender, node) => { _ = new NodeEventsHandlers(node); };
+                Network = new P2P(Config);
+                Network.NodeCreated += (sender, node) => { _ = new NodeEventsHandlers(node); };
 
-                // Initialize server
-                if (!args.Contains("--no-server") && !args.Contains("-n")) Network.StartServer();
-
-                // Start broadcast service
-                if (!args.Contains("--no-udp") && !args.Contains("-b"))
-                {
-                    Network.StartBroadcast();
-                    Network.Broadcasting.DetectedNodes.CollectionChanged += (_, _) =>
-                    {
-                        Ui.DetectedCount.Text = Network.Broadcasting.DetectedNodes.Count.ToString();
-                    };
-                }
+                if (args.Contains("--no-saved") || args.Contains("-a")) Config.ConnectToSaved = false;
+                if (args.Contains("--no-udp") || args.Contains("-b")) Config.NodesDetection = false;
+                if (args.Contains("--no-server") || args.Contains("-n")) Config.StartServer = false;
             }
             catch (SocketException e)
             {
                 if (e.SocketErrorCode == SocketError.AddressAlreadyInUse)
-                    Ui.Log.Add(Resources._PortBusy);
+                    Ui.Log.AddWarning(Resources._PortBusy);
                 else
                     throw;
             }
+            
+            Ui.SetupNetworkEvents();
 
             // Show logs in console
             if (args.Contains("--debug") || args.Contains("-d") || Debugger.IsAttached)
             {
                 Trace.Listeners.Add(new TerminalTraceListener());
             }
+            
+            // Don't check updates in debug mode
             else
             {
                 var newVersion = UpdateChecker.CheckUpdates();
                 if (newVersion != null) Ui.StatusBar.Text = Ui.StatusBar.Text += $" - Update available ({newVersion})";
             }
 
-            // Save logs to file
-            LoggingService.StartLogging();
-
-            // Connect with localhost
-            if (args.Contains("--loopback") || args.Contains("-l")) Network.Connect(IPAddress.Loopback);
-
-            LoggingService.CleanLogs();
+            Logging.StartLogging();
+            Network.Start();
+            Logging.DeleteOldLogs();
         }
     }
 }

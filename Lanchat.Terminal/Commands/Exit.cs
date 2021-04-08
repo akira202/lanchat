@@ -4,8 +4,8 @@ namespace Lanchat.Terminal.Commands
 {
     public class Exit : ICommand
     {
-        public string Alias { get; set; } = "exit";
-        public int ArgsCount { get; set; }
+        public string Alias { get; } = "exit";
+        public int ArgsCount { get; } = 0;
 
         public void Execute(string[] _)
         {

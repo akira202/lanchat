@@ -8,4 +8,8 @@
       <ProjectReference Include="..\Lanchat.Core\Lanchat.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Syroot.Windows.IO.KnownFolders" Version="1.2.3" />
+    </ItemGroup>
+
 </Project>
