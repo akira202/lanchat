@@ -13,6 +13,7 @@
         <PackageTags>p2p, chat, network</PackageTags>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <DocumentationMarkdown>$(MSBuildProjectDirectory)\..\Docs\Core.md</DocumentationMarkdown>
+        <PackageVersion>2.7.0-b1</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
