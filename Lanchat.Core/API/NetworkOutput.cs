@@ -11,8 +11,6 @@ namespace Lanchat.Core.API
     /// </summary>
     public class NetworkOutput
     {
-        private readonly INetworkElement networkElement;
-        private readonly INodeState nodeState;
         private static readonly JsonSerializerOptions SerializerOptions = new()
         {
             Converters =
@@ -20,6 +18,9 @@ namespace Lanchat.Core.API
                 new JsonStringEnumConverter()
             }
         };
+
+        private readonly INetworkElement networkElement;
+        private readonly INodeState nodeState;
 
         internal NetworkOutput(INetworkElement networkElement, INodeState nodeState)
         {
@@ -36,7 +37,7 @@ namespace Lanchat.Core.API
             if (!nodeState.Ready) return;
             networkElement.Send(Serialize(content));
         }
-        
+
         /// <summary>
         ///     Send the data before marking the node as ready (Handshake, KeyInfo...).
         /// </summary>

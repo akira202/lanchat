@@ -9,8 +9,8 @@ namespace Lanchat.Tests.Core.API
     public class NetworkInputTests
     {
         private JsonBuffer jsonBuffer;
-        private Resolver resolver;
         private ModelHandlerMock modelHandlerMock;
+        private Resolver resolver;
 
         [SetUp]
         public void Setup()
@@ -26,8 +26,8 @@ namespace Lanchat.Tests.Core.API
         public void JsonSplit()
         {
             var fullString = NetworkOutput.Serialize(new Model());
-            var firstPart = fullString.Substring(0, 10);
-            var secondPart = fullString.Substring(10);
+            var firstPart = fullString[..10];
+            var secondPart = fullString[10..];
             jsonBuffer.AddToBuffer(firstPart);
             jsonBuffer.ReadBuffer().ForEach(resolver.CallHandler);
             jsonBuffer.AddToBuffer(secondPart);

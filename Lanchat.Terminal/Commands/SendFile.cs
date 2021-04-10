@@ -8,8 +8,8 @@ namespace Lanchat.Terminal.Commands
 {
     public class SendFile : ICommand
     {
-        public string Alias { get; } = "send";
-        public int ArgsCount { get; } = 2;
+        public string Alias => "send";
+        public int ArgsCount => 2;
 
         public void Execute(string[] args)
         {

@@ -8,8 +8,8 @@ namespace Lanchat.Core.API
 {
     internal class JsonReader
     {
-        private readonly JsonSerializerOptions serializerOptions;
         internal readonly List<Type> KnownModels = new();
+        private readonly JsonSerializerOptions serializerOptions;
 
         public JsonReader()
         {

@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Lanchat.Core.API;
 using Lanchat.Core.Chat;
 using Lanchat.Core.Encryption;
@@ -10,13 +9,13 @@ namespace Lanchat.Tests.Core.Chat
 {
     public class MessagesSendTests
     {
-        private PublicKeyEncryption publicKeyEncryption;
-        private SymmetricEncryption symmetricEncryption;
+        private MessageHandler messageHandler;
         private Messaging messaging;
         private NetworkMock networkMock;
         private NetworkOutput networkOutput;
+        private PublicKeyEncryption publicKeyEncryption;
         private Resolver resolver;
-        private MessageHandler messageHandler;
+        private SymmetricEncryption symmetricEncryption;
 
         [SetUp]
         public void Setup()
@@ -73,7 +72,7 @@ namespace Lanchat.Tests.Core.Chat
             messaging.SendMessage(testMessage);
             Assert.AreEqual(testMessage, receivedMessage);
         }
-        
+
         [Test]
         public void InvalidFormatCatch()
         {

@@ -90,7 +90,7 @@ namespace Lanchat.Terminal
         {
             Ui.Log.AddError(string.Format(Resources._ConnectionError, node.Id, e));
         }
-        
+
         private void OnFileTransferHandlerRequestReceived(object sender, FileTransferRequest e)
         {
             Ui.Log.Add(string.Format(Resources._FileRequest, node.Nickname, e.FileName));

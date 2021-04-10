@@ -19,8 +19,6 @@ namespace Lanchat.Core
     {
         private readonly IConfig config;
 
-        internal readonly PublicKeyEncryption PublicKeyEncryption;
-
         /// <see cref="FileReceiver" />
         public readonly FileReceiver FileReceiver;
 
@@ -38,14 +36,17 @@ namespace Lanchat.Core
         /// <see cref="NetworkOutput" />
         public readonly NetworkOutput NetworkOutput;
 
+        internal readonly PublicKeyEncryption PublicKeyEncryption;
+
         /// <see cref="Resolver" />
         public readonly Resolver Resolver;
+
+        internal readonly SymmetricEncryption SymmetricEncryption;
 
         internal bool HandshakeReceived;
         private string nickname;
         private string previousNickname;
         private Status status;
-        internal readonly SymmetricEncryption SymmetricEncryption;
 
         internal Node(INetworkElement networkElement, IConfig config, bool isSession)
         {
@@ -132,7 +133,7 @@ namespace Lanchat.Core
             FileReceiver.CancelReceive();
             GC.SuppressFinalize(this);
         }
-        
+
 
         /// <summary>
         ///     ID of TCP client or session.

@@ -16,7 +16,7 @@ namespace Lanchat.Core.Models
         ///     Guid for ignoring own broadcasts.
         /// </summary>
         [Required]
-        public string Guid { get; set; }
+        public string Guid { get; init; }
 
         /// <summary>
         ///     Node nickname.

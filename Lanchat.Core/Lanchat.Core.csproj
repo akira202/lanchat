@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <Version>2.7.0</Version>
         <TargetFramework>net5.0</TargetFramework>
@@ -12,8 +11,8 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>p2p, chat, network</PackageTags>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <DocumentationMarkdown>$(MSBuildProjectDirectory)\..\Docs\Core.md</DocumentationMarkdown>
-        <PackageVersion>2.7.0-b1</PackageVersion>
+        <Authors>tofudd</Authors>
+        <PackageVersion>2.7.0-b2</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>

@@ -10,8 +10,8 @@ namespace Lanchat.Terminal.Commands
 {
     public class Connect : ICommand
     {
-        public string Alias { get; } = "connect";
-        public int ArgsCount { get; } = 1;
+        public string Alias => "connect";
+        public int ArgsCount => 1;
 
         public async void Execute(string[] args)
         {
@@ -34,10 +34,7 @@ namespace Lanchat.Terminal.Commands
                 if (port == 0) port = Program.Config.ServerPort;
                 Ui.Log.Add(string.Format(Resources._ConnectionAttempt, addressArgument));
                 var result = await Program.Network.Connect(ipAddress, port);
-                if (!result)
-                {
-                    Ui.Log.AddError(string.Format(Resources._CannotConnect, ipAddress));
-                }
+                if (!result) Ui.Log.AddError(string.Format(Resources._CannotConnect, ipAddress));
             }
             catch (FormatException)
             {

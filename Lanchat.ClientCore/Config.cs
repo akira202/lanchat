@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Net;
 using System.Runtime.CompilerServices;
@@ -8,124 +9,154 @@ using Lanchat.Core.Models;
 
 namespace Lanchat.ClientCore
 {
+    /// <summary>
+    ///     Default IConfig implementation.
+    /// </summary>
     public class Config : IConfig
     {
-        private static int _port = 3645;
-        private static int _broadcastPort = 3646;
-        private static string _nickname = ConfigValues.GetNickname();
-        private static bool _automatic = true;
-        private static bool _useIPv6;
-        private static string _language = "default";
-        private static string _filesDownloadDirectory = ConfigValues.GetDownloadsDirectory();
-        private static Status _status = Status.Online;
-        private static ObservableCollection<IPAddress> _blockedAddresses = new();
-        private static ObservableCollection<IPAddress> _savedAddresses = new();
+        private bool automatic = true;
+        private ObservableCollection<IPAddress> blockedAddresses = new();
+        private int broadcastPort = 3646;
+        private string filesDownloadDirectory = Storage.DownloadsPath;
+        private string language = "default";
+        private string nickname = Environment.UserName;
+        private int port = 3645;
+        private ObservableCollection<IPAddress> savedAddresses = new();
+        private Status status = Status.Online;
+        private bool useIPv6;
 
-        [JsonIgnore] public bool Fresh { get; set; }
-        [JsonIgnore] public bool ConnectToSaved { get; set; } = true;
-        [JsonIgnore] public bool NodesDetection { get; set; } = true;
-        [JsonIgnore] public bool StartServer { get; set; } = true;
-        
+        /// <summary>
+        ///     Config could not be loaded and has just been generated.
+        /// </summary>
+        [JsonIgnore]
+        public bool Fresh { get; set; }
+
+        /// <summary>
+        ///     UI language.
+        /// </summary>
         public string Language
         {
-            get => _language;
+            get => language;
             set
             {
-                _language = value;
+                language = value;
                 OnPropertyChanged(nameof(Language));
             }
         }
-        
+
+
+        /// <inheritdoc />
+        [JsonIgnore]
+        public bool ConnectToSaved { get; set; } = true;
+
+        /// <inheritdoc />
+        [JsonIgnore]
+        public bool NodesDetection { get; set; } = true;
+
+        /// <inheritdoc />
+        [JsonIgnore]
+        public bool StartServer { get; set; } = true;
+
+        /// <inheritdoc />
         public ObservableCollection<IPAddress> BlockedAddresses
         {
-            get => _blockedAddresses;
+            get => blockedAddresses;
             set
             {
-                _blockedAddresses = value;
+                blockedAddresses = value;
                 OnPropertyChanged(nameof(BlockedAddresses));
             }
         }
 
+        /// <inheritdoc />
         public ObservableCollection<IPAddress> SavedAddresses
         {
-            get => _savedAddresses;
+            get => savedAddresses;
             set
             {
-                _savedAddresses = value;
+                savedAddresses = value;
                 OnPropertyChanged(nameof(SavedAddresses));
             }
         }
 
+        /// <inheritdoc />
         public Status Status
         {
-            get => _status;
+            get => status;
             set
             {
-                _status = value;
+                status = value;
                 OnPropertyChanged(nameof(Status));
             }
         }
 
+        /// <inheritdoc />
         public int ServerPort
         {
-            get => _port;
+            get => port;
             set
             {
-                _port = value;
+                port = value;
                 OnPropertyChanged(nameof(ServerPort));
             }
         }
 
+        /// <inheritdoc />
         public int BroadcastPort
         {
-            get => _broadcastPort;
+            get => broadcastPort;
             set
             {
-                _broadcastPort = value;
+                broadcastPort = value;
                 OnPropertyChanged(nameof(BroadcastPort));
             }
         }
 
+        /// <inheritdoc />
         public string Nickname
         {
-            get => _nickname;
+            get => nickname;
             set
             {
-                _nickname = value;
+                nickname = value;
                 OnPropertyChanged(nameof(Nickname));
             }
         }
 
+        /// <inheritdoc />
         public bool ConnectToReceivedList
         {
-            get => _automatic;
+            get => automatic;
             set
             {
-                _automatic = value;
+                automatic = value;
                 OnPropertyChanged(nameof(ConnectToReceivedList));
             }
         }
 
+        /// <inheritdoc />
         public string ReceivedFilesDirectory
         {
-            get => _filesDownloadDirectory;
+            get => filesDownloadDirectory;
             set
             {
-                _filesDownloadDirectory = value;
+                filesDownloadDirectory = value;
                 OnPropertyChanged(nameof(ReceivedFilesDirectory));
             }
         }
 
+        /// <inheritdoc />
         public bool UseIPv6
         {
-            get => _useIPv6;
+            get => useIPv6;
             set
             {
-                _useIPv6 = value;
+                useIPv6 = value;
                 OnPropertyChanged(nameof(UseIPv6));
             }
         }
 
+        /// <inheritdoc />
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)

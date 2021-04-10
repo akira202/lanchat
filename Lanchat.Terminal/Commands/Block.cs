@@ -7,8 +7,8 @@ namespace Lanchat.Terminal.Commands
 {
     public class Block : ICommand
     {
-        public string Alias { get; } = "block";
-        public int ArgsCount { get; } = 1;
+        public string Alias => "block";
+        public int ArgsCount => 1;
 
         public void Execute(string[] args)
         {
@@ -36,7 +36,7 @@ namespace Lanchat.Terminal.Commands
                 Ui.Log.AddError(Resources._IncorrectValues);
                 return;
             }
-            
+
             if (Program.Config.BlockedAddresses.Any(x => Equals(x, ipAddress)))
             {
                 Ui.Log.AddError(Resources._AlreadyBlocked);

@@ -5,8 +5,8 @@ namespace Lanchat.Terminal.Commands
 {
     public class Nick : ICommand
     {
-        public string Alias { get; } = "nick";
-        public int ArgsCount { get; } = 1;
+        public string Alias => "nick";
+        public int ArgsCount => 1;
 
         public void Execute(string[] args)
         {

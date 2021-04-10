@@ -33,13 +33,9 @@ namespace Lanchat.Core.Chat
             var decryptedMessage = messaging.Encryption.DecryptString(message.Content);
 
             if (message.Private)
-            {
                 messaging.OnPrivateMessageReceived(decryptedMessage);
-            }
             else
-            {
                 messaging.OnMessageReceived(decryptedMessage);
-            }
         }
     }
 }

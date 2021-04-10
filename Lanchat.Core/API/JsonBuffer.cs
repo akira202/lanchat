@@ -8,7 +8,7 @@ namespace Lanchat.Core.API
     {
         private string buffer;
         private string currentJson;
-        
+
         internal void AddToBuffer(string dataString)
         {
             buffer += dataString;
@@ -18,8 +18,8 @@ namespace Lanchat.Core.API
         {
             var index = buffer.LastIndexOf("}", StringComparison.Ordinal);
             if (index < 0) return new List<string>();
-            currentJson = buffer.Substring(0, index + 1);
-            buffer = buffer.Substring(index + 1);
+            currentJson = buffer[..(index + 1)];
+            buffer = buffer[(index + 1)..];
             return currentJson.Replace("}{", "}|{").Split('|').ToList();
         }
     }

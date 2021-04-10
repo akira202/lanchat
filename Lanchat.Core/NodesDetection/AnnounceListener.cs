@@ -69,9 +69,7 @@ namespace Lanchat.Core.NodesDetection
         private bool CheckPreconditions(Announce broadcast)
         {
             if (!Validator.TryValidateObject(broadcast, new ValidationContext(broadcast), new List<ValidationResult>()))
-            {
                 return false;
-            }
 
             return broadcast.Guid != uniqueId;
         }
@@ -85,7 +83,7 @@ namespace Lanchat.Core.NodesDetection
                 UpdateNode(e, alreadyDetected);
         }
 
-        private void UpdateNode(Announce newAnnounce, Announce alreadyDetected)
+        private static void UpdateNode(Announce newAnnounce, Announce alreadyDetected)
         {
             alreadyDetected.Active = true;
             alreadyDetected.Nickname = newAnnounce.Nickname;

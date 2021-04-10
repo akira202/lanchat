@@ -5,8 +5,8 @@ namespace Lanchat.Terminal.Commands
 {
     public class Disconnect : ICommand
     {
-        public string Alias { get; } = "disconnect";
-        public int ArgsCount { get; } = 1;
+        public string Alias => "disconnect";
+        public int ArgsCount => 1;
 
         public void Execute(string[] args)
         {

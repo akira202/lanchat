@@ -8,8 +8,8 @@ namespace Lanchat.Terminal.Commands
 {
     public class List : ICommand
     {
-        public string Alias { get; } = "list";
-        public int ArgsCount { get; } = 0;
+        public string Alias => "list";
+        public int ArgsCount => 0;
 
         public void Execute(string[] _)
         {

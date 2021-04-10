@@ -5,8 +5,8 @@ namespace Lanchat.Terminal.Commands
 {
     public class Online : ICommand
     {
-        public string Alias { get; } = "online";
-        public int ArgsCount { get; } = 0;
+        public string Alias => "online";
+        public int ArgsCount => 0;
 
         public void Execute(string[] _)
         {

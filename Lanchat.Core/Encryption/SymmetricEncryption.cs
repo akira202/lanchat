@@ -9,8 +9,8 @@ namespace Lanchat.Core.Encryption
     internal class SymmetricEncryption : IDisposable
     {
         private readonly Aes localAes;
-        private readonly Aes remoteAes;
         private readonly PublicKeyEncryption publicKeyEncryption;
+        private readonly Aes remoteAes;
         private bool disposed;
 
         internal SymmetricEncryption(PublicKeyEncryption publicKeyEncryption)
@@ -31,10 +31,7 @@ namespace Lanchat.Core.Encryption
 
         internal byte[] EncryptBytes(byte[] data)
         {
-            if (disposed)
-            {
-                throw new ObjectDisposedException(nameof(SymmetricEncryption));
-            }
+            if (disposed) throw new ObjectDisposedException(nameof(SymmetricEncryption));
 
             using var memoryStream = new MemoryStream();
             using var cryptoStream =
@@ -46,10 +43,7 @@ namespace Lanchat.Core.Encryption
 
         internal byte[] DecryptBytes(byte[] data)
         {
-            if (disposed)
-            {
-                throw new ObjectDisposedException(nameof(SymmetricEncryption));
-            }
+            if (disposed) throw new ObjectDisposedException(nameof(SymmetricEncryption));
 
             using var memoryStream = new MemoryStream();
             using var cryptoStream =

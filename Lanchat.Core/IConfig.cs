@@ -31,9 +31,9 @@ namespace Lanchat.Core
         ///     Blocked IP addresses.
         /// </summary>
         ObservableCollection<IPAddress> BlockedAddresses { get; set; }
-        
+
         /// <summary>
-        ///     Addresses of previously connected nodes. 
+        ///     Addresses of previously connected nodes.
         /// </summary>
         ObservableCollection<IPAddress> SavedAddresses { get; set; }
 
@@ -51,12 +51,12 @@ namespace Lanchat.Core
         ///     Try connecting with nodes from received list.
         /// </summary>
         bool ConnectToReceivedList { get; set; }
-        
+
         /// <summary>
         ///     Try connecting with nodes from SavedAddresses
         /// </summary>
         bool ConnectToSaved { get; set; }
-        
+
         /// <summary>
         ///     Use UDP broadcasting to announce self presence and detect other nodes.
         /// </summary>
@@ -66,7 +66,7 @@ namespace Lanchat.Core
         ///     Disable only in debug mode.
         /// </summary>
         bool StartServer { get; set; }
-        
+
         /// <summary>
         ///     Files download directory.
         /// </summary>

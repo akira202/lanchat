@@ -15,8 +15,7 @@ namespace Lanchat.Core.FileTransfer
 
         protected override void Handle(FilePart filePart)
         {
-            if (fileReceiver.Request == null) return;
-            if (!fileReceiver.Request.Accepted) return;
+            if (fileReceiver.Request is not {Accepted: true}) return;
 
             try
             {

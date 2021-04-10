@@ -6,8 +6,8 @@ namespace Lanchat.Terminal.Commands
 {
     public class PrivateMessage : ICommand
     {
-        public string Alias { get; } = "m";
-        public int ArgsCount { get; } = 2;
+        public string Alias => "m";
+        public int ArgsCount => 2;
 
         public void Execute(string[] args)
         {

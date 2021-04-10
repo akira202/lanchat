@@ -7,8 +7,8 @@ namespace Lanchat.Terminal.Commands
 {
     public class Unblock : ICommand
     {
-        public string Alias { get; } = "unblock";
-        public int ArgsCount { get; } = 1;
+        public string Alias => "unblock";
+        public int ArgsCount => 1;
 
         public void Execute(string[] args)
         {
@@ -18,13 +18,13 @@ namespace Lanchat.Terminal.Commands
                 Ui.Log.AddError(Resources._IncorrectValues);
                 return;
             }
-            
+
             if (Program.Config.BlockedAddresses.All(x => !Equals(x, parsedIp)))
             {
                 Ui.Log.AddError(Resources._UserNotFound);
                 return;
             }
-            
+
             Program.Config.BlockedAddresses.Remove(parsedIp);
             Ui.Log.Add(string.Format(Resources._Unblocked, parsedIp));
         }

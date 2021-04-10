@@ -31,11 +31,9 @@ namespace Lanchat.Core.P2PHandlers
             nodesList.AddRange(network.Nodes.Where(x => x.Id != node.Id)
                 .Select(x => x.NetworkElement.Endpoint.Address.ToString()));
             node.NetworkOutput.SendData(nodesList);
-            
+
             if (!network.Config.SavedAddresses.Contains(node.NetworkElement.Endpoint.Address))
-            {
                 network.Config.SavedAddresses.Add(node.NetworkElement.Endpoint.Address);
-            }
         }
 
         private void OnSessionCreated(object sender, Node node)

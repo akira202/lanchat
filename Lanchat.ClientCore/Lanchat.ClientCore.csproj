@@ -2,14 +2,23 @@
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
+        <PackageVersion>2.7.0</PackageVersion>
+        <Title>Lanchat.ClientCore</Title>
+        <Authors>tofudd</Authors>
+        <PackageProjectUrl>https://github.com/tofudd/lanchat</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/tofudd/lanchat/blob/master/Docs/LICENSE.md</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/tofudd/lanchat</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <Description>Utilities for Lanchat.Core config store and logging to file.</Description>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Lanchat.Core\Lanchat.Core.csproj" />
     </ItemGroup>
-
     <ItemGroup>
-      <PackageReference Include="Syroot.Windows.IO.KnownFolders" Version="1.2.3" />
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>Lanchat.Tests</_Parameter1>
+        </AssemblyAttribute>
     </ItemGroup>
-
 </Project>

@@ -5,8 +5,8 @@ namespace Lanchat.Terminal.Commands
 {
     public class Cancel : ICommand
     {
-        public string Alias { get; } = "cancel";
-        public int ArgsCount { get; } = 1;
+        public string Alias => "cancel";
+        public int ArgsCount => 1;
 
         public void Execute(string[] args)
         {
@@ -17,10 +17,7 @@ namespace Lanchat.Terminal.Commands
                 return;
             }
 
-            if (!node.FileReceiver.CancelReceive())
-            {
-                Ui.Log.AddError(Resources._NoFileReceiveRequest);
-            }
+            if (!node.FileReceiver.CancelReceive()) Ui.Log.AddError(Resources._NoFileReceiveRequest);
         }
     }
 }

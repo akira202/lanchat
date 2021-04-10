@@ -10,10 +10,10 @@ namespace Lanchat.Core.NodesDetection
 {
     internal class AnnounceSender
     {
-        private readonly UdpClient udpClient;
-        private readonly IPEndPoint endPoint;
-        private readonly string uniqueId;
         private readonly IConfig config;
+        private readonly IPEndPoint endPoint;
+        private readonly UdpClient udpClient;
+        private readonly string uniqueId;
         private bool continueSendingAnnouncements = true;
 
         public AnnounceSender(IConfig config, UdpClient udpClient, string uniqueId)

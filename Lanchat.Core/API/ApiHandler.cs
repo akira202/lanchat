@@ -13,7 +13,7 @@ namespace Lanchat.Core.API
 
         /// <inheritdoc />
         public bool Privileged { get; protected init; }
-        
+
         /// <inheritdoc />
         public void Handle(object data)
         {
@@ -26,9 +26,9 @@ namespace Lanchat.Core.API
         /// <param name="data">Converted object.</param>
         protected abstract void Handle(T data);
     }
-    
+
     /// <summary>
-    ///     Use <see cref="ApiHandler{T}"/> instead this.
+    ///     Use <see cref="ApiHandler{T}" /> instead this.
     /// </summary>
     public interface IApiHandler
     {
@@ -36,12 +36,12 @@ namespace Lanchat.Core.API
         ///     Type of handled model.
         /// </summary>
         public Type HandledType { get; }
-        
+
         /// <summary>
         ///     If handler is privileged it will process data even if node is unready.
         /// </summary>
         public bool Privileged { get; }
-        
+
         /// <summary>
         ///     Object handler.
         /// </summary>

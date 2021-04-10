@@ -16,7 +16,7 @@ namespace Lanchat.Terminal
 
         private static void Main(string[] args)
         {
-            Config = ConfigManager.Load();
+            Config = Storage.LoadConfig();
 
             // Load resources
             try
@@ -48,7 +48,7 @@ namespace Lanchat.Terminal
                 else
                     throw;
             }
-            
+
             Ui.SetupNetworkEvents();
 
             // Show logs in console
@@ -56,7 +56,7 @@ namespace Lanchat.Terminal
             {
                 Trace.Listeners.Add(new TerminalTraceListener());
             }
-            
+
             // Don't check updates in debug mode
             else
             {
@@ -64,9 +64,9 @@ namespace Lanchat.Terminal
                 if (newVersion != null) Ui.StatusBar.Text = Ui.StatusBar.Text += $" - Update available ({newVersion})";
             }
 
-            Logging.StartLogging();
+            Logger.StartLogging();
             Network.Start();
-            Logging.DeleteOldLogs();
+            Logger.DeleteOldLogs(5);
         }
     }
 }

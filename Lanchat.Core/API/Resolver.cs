@@ -14,9 +14,9 @@ namespace Lanchat.Core.API
     public class Resolver
     {
         private readonly List<IApiHandler> handlers = new();
-        private readonly INodeState nodeState;
-        private readonly JsonReader jsonReader;
         private readonly JsonBuffer jsonBuffer;
+        private readonly JsonReader jsonReader;
+        private readonly INodeState nodeState;
 
         internal Resolver(INodeState nodeState)
         {

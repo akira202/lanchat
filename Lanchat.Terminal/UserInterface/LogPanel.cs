@@ -19,12 +19,10 @@ namespace Lanchat.Terminal.UserInterface
         public void Add(string text, ConsoleColor color = ConsoleColor.White)
         {
             foreach (var line in SplitLines(text))
-            {
                 AddTextLine(new[]
                 {
                     new TextBlock {Text = line, Color = color}
                 });
-            }
         }
 
         public void AddError(string text)
