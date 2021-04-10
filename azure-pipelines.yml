@@ -34,6 +34,20 @@ stages:
             ArtifactName: 'Core'
             publishLocation: 'Container'
 
+    - job: ClientCore
+      steps:
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'pack'
+            packagesToPack: 'Lanchat.ClientCore/Lanchat.ClientCore.csproj'
+            packDirectory: '$(Build.ArtifactStagingDirectory)/ClientCore'
+            versioningScheme: 'off'
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: '$(Build.ArtifactStagingDirectory)/ClientCore'
+            ArtifactName: 'ClientCore'
+            publishLocation: 'Container'
+
     - job: Terminal
       steps:
       - task: DotNetCoreCLI@2
