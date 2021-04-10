@@ -9,13 +9,13 @@ namespace Lanchat.Tests.ClientCore
     [NonParallelizable]
     public class ConfigManagerTests
     {
-        [OneTimeSetUp]
+        [SetUp]
         public void Setup()
         {
             FileOperations.Prepare();
         }
 
-        [OneTimeTearDown]
+        [TearDown]
         public void TearDown()
         {
             FileOperations.CleanUp();
