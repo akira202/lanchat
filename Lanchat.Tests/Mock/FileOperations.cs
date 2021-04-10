@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Lanchat.ClientCore;
 
@@ -5,18 +6,17 @@ namespace Lanchat.Tests.Mock
 {
     public static class FileOperations
     {
-        private static int _counter;
+        private static Guid _guid;
         public static void Prepare()
         {
-            Storage.DataPath = $"data_{_counter}";
+            _guid = Guid.NewGuid();
+            Storage.DataPath = $"test-{_guid}";
             Storage.DownloadsPath = Storage.DataPath;
             Storage.CreateStorageDirectoryIfNotExists();
-            _counter++;
         }
 
         public static void CleanUp()
         {
-            if (!Directory.Exists(Storage.DataPath)) return;
             Directory.Delete(Storage.DataPath, true);
         }
     }
