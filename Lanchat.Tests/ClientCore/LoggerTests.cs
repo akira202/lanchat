@@ -7,6 +7,7 @@ using NUnit.Framework;
 
 namespace Lanchat.Tests.ClientCore
 {
+    [NonParallelizable]
     public class LoggerTests
     {
         [SetUp]
@@ -14,9 +15,14 @@ namespace Lanchat.Tests.ClientCore
         {
             FileOperations.Prepare();
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            FileOperations.CleanUp();
+        }
 
         [Test]
-        [NonParallelizable]
         public void AddToLog()
         {
             Logger.StartLogging();
@@ -29,7 +35,6 @@ namespace Lanchat.Tests.ClientCore
         }
 
         [Test]
-        [NonParallelizable]
         public void ClearLogsDirectory()
         {
             Logger.StartLogging();
