@@ -16,6 +16,7 @@ namespace Lanchat.Tests.ClientCore
         }
 
         [Test]
+        [NonParallelizable]
         public void AddToLog()
         {
             Logger.StartLogging();
@@ -28,6 +29,7 @@ namespace Lanchat.Tests.ClientCore
         }
 
         [Test]
+        [NonParallelizable]
         public void ClearLogsDirectory()
         {
             Logger.StartLogging();

@@ -15,6 +15,7 @@ namespace Lanchat.Tests.ClientCore
         }
 
         [Test]
+        [NonParallelizable]
         public void CreatingNewConfig()
         {
             var config = Storage.LoadConfig();
@@ -22,6 +23,7 @@ namespace Lanchat.Tests.ClientCore
         }
 
         [Test]
+        [NonParallelizable]
         public void ConfigLoading()
         {
             Storage.SaveConfig(new Config());
@@ -30,6 +32,7 @@ namespace Lanchat.Tests.ClientCore
         }
 
         [Test]
+        [NonParallelizable]
         public void ConfigSaving()
         {
             var config = Storage.LoadConfig();
@@ -39,6 +42,7 @@ namespace Lanchat.Tests.ClientCore
         }
         
         [Test]
+        [NonParallelizable]
         public void ListSaving()
         {
             var config = Storage.LoadConfig();
@@ -50,6 +54,7 @@ namespace Lanchat.Tests.ClientCore
         }
         
         [Test]
+        [NonParallelizable]
         public void LoadingInvalidJson()
         {
             File.WriteAllText(Storage.ConfigPath, "not a json");
@@ -58,6 +63,7 @@ namespace Lanchat.Tests.ClientCore
         }
         
         [Test]
+        [NonParallelizable]
         public void CreatingDirectory()
         {
             Directory.Delete(Storage.DataPath, true);
