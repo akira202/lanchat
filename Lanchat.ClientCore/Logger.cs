@@ -11,6 +11,8 @@ namespace Lanchat.ClientCore
     /// </summary>
     public static class Logger
     {
+        private static FileTraceListener fileTraceListener;
+        
         /// <summary>
         ///     Create log file and start logging.
         /// </summary>
@@ -18,7 +20,8 @@ namespace Lanchat.ClientCore
         {
             AppDomain.CurrentDomain.FirstChanceException += OnFirstChanceException;
             var logPath = $"{Storage.DataPath}/{DateTime.Now:yyyy_MM_dd_HH_mm_ss}.log";
-            Trace.Listeners.Add(new FileTraceListener(logPath));
+            fileTraceListener = new FileTraceListener(logPath);
+            Trace.Listeners.Add(fileTraceListener);
             Trace.IndentSize = 11;
             Trace.AutoFlush = true;
             Trace.WriteLine("Logging started");
@@ -29,6 +32,7 @@ namespace Lanchat.ClientCore
         /// </summary>
         public static void StopLogging()
         {
+            fileTraceListener.Dispose();
             AppDomain.CurrentDomain.FirstChanceException -= OnFirstChanceException;
         }
 

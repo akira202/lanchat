@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <Version>2.7.0</Version>
         <TargetFramework>net5.0</TargetFramework>
         <Title>Lanchat.Core</Title>
+        <PackageVersion>2.7.0-b2</PackageVersion>
         <Description>Local network P2P chat libary.</Description>
         <Copyright>tofudd</Copyright>
         <PackageProjectUrl>https://github.com/tofudd/lanchat</PackageProjectUrl>

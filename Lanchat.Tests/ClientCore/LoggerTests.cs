@@ -23,6 +23,7 @@ namespace Lanchat.Tests.ClientCore
             var files = Directory.GetFiles(Storage.DataPath, "*.log");
             var logFile = File.ReadAllLines(files.Last());
             var test = logFile.Last().EndsWith("test");
+            Logger.StopLogging();
             Assert.IsTrue(test);
         }
 
