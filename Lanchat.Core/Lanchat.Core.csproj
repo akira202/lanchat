@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
         <Title>Lanchat.Core</Title>
-        <PackageVersion>2.7.0-b2</PackageVersion>
+        <PackageVersion>2.7.0-b3</PackageVersion>
         <Description>Local network P2P chat libary.</Description>
         <Copyright>tofudd</Copyright>
         <PackageProjectUrl>https://github.com/tofudd/lanchat</PackageProjectUrl>
@@ -13,7 +13,6 @@
         <PackageTags>p2p, chat, network</PackageTags>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <Authors>tofudd</Authors>
-        <PackageVersion>2.7.0-b2</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
