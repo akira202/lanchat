@@ -1,27 +1,26 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Lanchat.Core.API;
-using Lanchat.Core.Encryption;
+using Lanchat.Core.Api;
 using Lanchat.Core.Models;
 
 namespace Lanchat.Core.FileTransfer
 {
-    // TODO: Refactor
     /// <summary>
     ///     File sending.
     /// </summary>
     public class FileSender
     {
         private const int ChunkSize = 1024 * 1024;
-        private readonly SymmetricEncryption encryption;
-        private readonly NetworkOutput networkOutput;
+        private readonly FileSendingControl fileSendingControl;
+        private readonly IOutput output;
         private bool disposing;
 
-        internal FileSender(NetworkOutput networkOutput, SymmetricEncryption encryption)
+        internal FileSender(IOutput output)
         {
-            this.networkOutput = networkOutput;
-            this.encryption = encryption;
+            this.output = output;
+            fileSendingControl = new FileSendingControl(output);
         }
 
         /// <summary>
@@ -37,7 +36,7 @@ namespace Lanchat.Core.FileTransfer
         /// <summary>
         ///     File send request accepted. File transfer in progress.
         /// </summary>
-        public event EventHandler<FileTransferRequest> FileTransferRequestAccepted;
+        public event EventHandler<FileTransferRequest> AcceptedByReceiver;
 
         /// <summary>
         ///     File send request accepted.
@@ -53,9 +52,13 @@ namespace Lanchat.Core.FileTransfer
         ///     Send file exchange request.
         /// </summary>
         /// <param name="path">File path</param>
+        /// <exception cref="InvalidOperationException">Only one file can be send at same time</exception>
         public void CreateSendRequest(string path)
         {
-            if (Request != null) throw new InvalidOperationException("File transfer in progress");
+            if (Request != null)
+            {
+                throw new InvalidOperationException("File transfer already in progress");
+            }
 
             var fileInfo = new FileInfo(Path.Combine(path));
 
@@ -65,26 +68,19 @@ namespace Lanchat.Core.FileTransfer
                 Parts = (fileInfo.Length + ChunkSize - 1) / ChunkSize
             };
 
-            networkOutput.SendData(
-                new FileTransferControl
-                {
-                    FileName = Request.FileName,
-                    RequestStatus = RequestStatus.Sending,
-                    Parts = Request.Parts
-                });
+            fileSendingControl.Request(Request);
         }
 
         internal void SendFile()
         {
-            FileTransferRequestAccepted?.Invoke(this, Request);
+            AcceptedByReceiver?.Invoke(this, Request);
 
             try
             {
-                var buffer = new byte[ChunkSize];
-                int bytesRead;
-                using var file = File.OpenRead(Request.FilePath);
-                while ((bytesRead = file.Read(buffer, 0, buffer.Length)) > 0)
+                var file = new FileReader(Request.FilePath, ChunkSize);
+                do
                 {
+                    var buffer = file.ReadChunk();
                     if (disposing)
                     {
                         OnFileTransferError(new FileTransferException(Request));
@@ -93,38 +89,42 @@ namespace Lanchat.Core.FileTransfer
 
                     var part = new FilePart
                     {
-                        Data = encryption.EncryptBytes(buffer.Take(bytesRead).ToArray())
+                        Data = Convert.ToBase64String(buffer.Take(file.BytesRead).ToArray())
                     };
 
-                    if (bytesRead < ChunkSize) part.Last = true;
-                    networkOutput.SendData(part);
+                    output.SendData(part);
                     Request.PartsTransferred++;
-                }
+                } while (file.BytesRead > 0);
 
                 FileSendFinished?.Invoke(this, Request);
+                fileSendingControl.Finished();
+                file.Dispose();
                 Request = null;
             }
-            catch
+            catch (Exception e)
             {
-                OnFileTransferError(new FileTransferException(Request));
-                networkOutput.SendData(
-                    new FileTransferControl
-                    {
-                        RequestStatus = RequestStatus.Errored
-                    });
-                Request = null;
+                CatchFileSystemExceptions(e);
             }
         }
 
         internal void HandleReject()
         {
+            if (Request == null)
+            {
+                return;
+            }
+
             FileTransferRequestRejected?.Invoke(this, Request);
             Request = null;
         }
 
         internal void HandleCancel()
         {
-            if (Request == null) return;
+            if (Request == null || Request.Accepted == false)
+            {
+                return;
+            }
+
             OnFileTransferError(new FileTransferException(Request));
             Request = null;
         }
@@ -137,6 +137,23 @@ namespace Lanchat.Core.FileTransfer
         private void OnFileTransferError(FileTransferException e)
         {
             FileTransferError?.Invoke(this, e);
+        }
+
+        private void CatchFileSystemExceptions(Exception e)
+        {
+            if (e is not (
+                DirectoryNotFoundException or
+                FileNotFoundException or
+                IOException or
+                UnauthorizedAccessException))
+            {
+                throw e;
+            }
+
+            OnFileTransferError(new FileTransferException(Request));
+            fileSendingControl.Errored();
+            Request = null;
+            Trace.WriteLine("Cannot access file system");
         }
     }
 }

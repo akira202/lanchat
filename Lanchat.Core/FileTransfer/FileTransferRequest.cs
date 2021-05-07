@@ -34,7 +34,11 @@ namespace Lanchat.Core.FileTransfer
             get => partsTransferred;
             internal set
             {
-                if (partsTransferred == value) return;
+                if (partsTransferred == value)
+                {
+                    return;
+                }
+
                 partsTransferred = value;
                 OnPropertyChanged();
             }

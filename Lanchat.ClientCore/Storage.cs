@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Lanchat.Core.Json;
 
 namespace Lanchat.ClientCore
 {
@@ -92,7 +93,10 @@ namespace Lanchat.ClientCore
         {
             try
             {
-                if (!Directory.Exists(DataPath)) Directory.CreateDirectory(DataPath);
+                if (!Directory.Exists(DataPath))
+                {
+                    Directory.CreateDirectory(DataPath);
+                }
             }
             catch (Exception e)
             {
@@ -106,7 +110,11 @@ namespace Lanchat.ClientCore
                 DirectoryNotFoundException or
                 FileNotFoundException or
                 IOException or
-                UnauthorizedAccessException)) throw e;
+                UnauthorizedAccessException))
+            {
+                throw e;
+            }
+
             Trace.WriteLine("Cannot access file system");
         }
 

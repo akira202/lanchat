@@ -28,7 +28,11 @@ namespace Lanchat.Core.Models
             get => nickname;
             set
             {
-                if (value == nickname) return;
+                if (value == nickname)
+                {
+                    return;
+                }
+
                 nickname = value;
                 OnPropertyChanged();
             }

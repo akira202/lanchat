@@ -15,7 +15,7 @@ namespace Lanchat.Tests.ClientCore
         {
             FileOperations.Prepare();
         }
-        
+
         [TearDown]
         public void TearDown()
         {

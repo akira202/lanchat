@@ -19,10 +19,12 @@ namespace Lanchat.Terminal.UserInterface
         public void Add(string text, ConsoleColor color = ConsoleColor.White)
         {
             foreach (var line in SplitLines(text))
+            {
                 AddTextLine(new[]
                 {
                     new TextBlock {Text = line, Color = color}
                 });
+            }
         }
 
         public void AddError(string text)
@@ -69,10 +71,13 @@ namespace Lanchat.Terminal.UserInterface
         private static IEnumerable<string> SplitLines(string text)
         {
             if (text == null)
+            {
                 return new[]
                 {
                     ""
                 };
+            }
+
             return text.Split(new[]
                 {
                     "\r\n", "\r", "\n"

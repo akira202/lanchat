@@ -4,11 +4,11 @@ namespace Lanchat.Core.Models
 {
     internal class ConnectionControl
     {
-        [Required] public ConnectionControlStatus Status { get; init; }
+        [Required] public ConnectionStatus Status { get; init; }
     }
 
-    internal enum ConnectionControlStatus
+    internal enum ConnectionStatus
     {
-        RemoteClose
+        RemoteDisconnect
     }
 }

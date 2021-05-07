@@ -1,10 +1,10 @@
 using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Lanchat.Core.API;
+using Lanchat.Core.Config;
+using Lanchat.Core.Json;
 using Lanchat.Core.Models;
+using Lanchat.Core.Udp;
 
 namespace Lanchat.Core.NodesDetection
 {
@@ -12,15 +12,17 @@ namespace Lanchat.Core.NodesDetection
     {
         private readonly IConfig config;
         private readonly IPEndPoint endPoint;
-        private readonly UdpClient udpClient;
+        private readonly JsonUtils jsonUtils;
+        private readonly IUdpClient udpClient;
         private readonly string uniqueId;
         private bool continueSendingAnnouncements = true;
 
-        public AnnounceSender(IConfig config, UdpClient udpClient, string uniqueId)
+        public AnnounceSender(IConfig config, IUdpClient udpClient, string uniqueId)
         {
             this.udpClient = udpClient;
             this.uniqueId = uniqueId;
             this.config = config;
+            jsonUtils = new JsonUtils();
             endPoint = new IPEndPoint(IPAddress.Broadcast, config.BroadcastPort);
         }
 
@@ -30,14 +32,13 @@ namespace Lanchat.Core.NodesDetection
             {
                 while (continueSendingAnnouncements)
                 {
-                    var json = NetworkOutput.Serialize(new Announce
+                    var json = jsonUtils.Serialize(new Announce
                     {
                         Guid = uniqueId,
                         Nickname = config.Nickname
                     });
 
-                    var data = Encoding.UTF8.GetBytes(json);
-                    udpClient.Send(data, data.Length, endPoint);
+                    udpClient.Send(json, endPoint);
                     Thread.Sleep(2000);
                 }
             });

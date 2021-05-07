@@ -26,15 +26,28 @@ namespace Lanchat.Terminal.Commands
             {
                 // If input cannot be parsed as IP try get address from dns
                 if (!IPAddress.TryParse(addressArgument, out var ipAddress))
+                {
                     ipAddress = (await Dns.GetHostAddressesAsync(addressArgument)).FirstOrDefault();
+                }
 
                 // Use port from argument or config
                 var port = 0;
-                if (args.Length > 1) port = Parse(args[1]);
-                if (port == 0) port = Program.Config.ServerPort;
+                if (args.Length > 1)
+                {
+                    port = Parse(args[1]);
+                }
+
+                if (port == 0)
+                {
+                    port = Program.Config.ServerPort;
+                }
+
                 Ui.Log.Add(string.Format(Resources._ConnectionAttempt, addressArgument));
                 var result = await Program.Network.Connect(ipAddress, port);
-                if (!result) Ui.Log.AddError(string.Format(Resources._CannotConnect, ipAddress));
+                if (!result)
+                {
+                    Ui.Log.AddError(string.Format(Resources._CannotConnect, ipAddress));
+                }
             }
             catch (FormatException)
             {

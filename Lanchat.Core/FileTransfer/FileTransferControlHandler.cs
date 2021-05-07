@@ -1,10 +1,9 @@
 using System.Diagnostics;
-using Lanchat.Core.API;
+using Lanchat.Core.Api;
 using Lanchat.Core.Models;
 
 namespace Lanchat.Core.FileTransfer
 {
-    // TODO: Refactor
     internal class FileTransferControlHandler : ApiHandler<FileTransferControl>
     {
         private readonly FileReceiver fileReceiver;
@@ -28,16 +27,20 @@ namespace Lanchat.Core.FileTransfer
                     fileSender.HandleReject();
                     break;
 
+                case RequestStatus.Canceled:
+                    fileSender.HandleCancel();
+                    break;
+
                 case RequestStatus.Sending:
                     fileReceiver.HandleReceiveRequest(request);
                     break;
 
-                case RequestStatus.Errored:
-                    fileReceiver.HandleSenderError();
+                case RequestStatus.Finished:
+                    fileReceiver.FinishReceive();
                     break;
 
-                case RequestStatus.Canceled:
-                    fileSender.HandleCancel();
+                case RequestStatus.Errored:
+                    fileReceiver.HandleSenderError();
                     break;
 
                 default:

@@ -1,6 +1,6 @@
 using System.Net;
 using System.Text.Json;
-using Lanchat.ClientCore;
+using Lanchat.Core.Json;
 using Lanchat.Tests.Mock.Models;
 using NUnit.Framework;
 

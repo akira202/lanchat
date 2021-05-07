@@ -6,8 +6,7 @@ namespace Lanchat.ClientCore
     internal class FileTraceListener : TextWriterTraceListener
     {
         internal FileTraceListener(string fileName) : base(fileName)
-        {
-        }
+        { }
 
         public override void WriteLine(string message)
         {

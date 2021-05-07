@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
-using Lanchat.Core;
+using Lanchat.Core.Config;
 using Lanchat.Core.Models;
 
 namespace Lanchat.ClientCore

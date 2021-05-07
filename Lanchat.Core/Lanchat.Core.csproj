@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
         <Title>Lanchat.Core</Title>
@@ -17,11 +18,7 @@
 
     <ItemGroup>
       <PackageReference Include="NetCoreServer" Version="5.0.15" />
-      <PackageReference Include="System.Text.Json" Version="5.0.1" />
-      <PackageReference Include="Vsxmd" Version="1.4.5">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
+      <PackageReference Include="System.Text.Json" Version="5.0.2" />
     </ItemGroup>
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">

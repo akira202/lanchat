@@ -16,7 +16,7 @@ namespace Lanchat.Terminal.UserInterface
             Text = string.Format(Resources._NoFileReceiveRequest);
         }
 
-        public void OnFileTransferRequestAccepted(object sender, FileTransferRequest e)
+        public void OnAcceptedByReceiver(object sender, FileTransferRequest e)
         {
             parts += e.Parts;
             e.PropertyChanged += (_, _) =>
@@ -41,7 +41,10 @@ namespace Lanchat.Terminal.UserInterface
             totalProgress -= e.Parts;
             parts -= e.Parts;
             Text = $"{totalProgress}/{parts}";
-            if (parts == 0) Text = string.Format(Resources._NoFileReceiveRequest);
+            if (parts == 0)
+            {
+                Text = string.Format(Resources._NoFileReceiveRequest);
+            }
         }
     }
 }

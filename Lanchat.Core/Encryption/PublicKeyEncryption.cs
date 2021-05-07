@@ -4,7 +4,7 @@ using Lanchat.Core.Models;
 
 namespace Lanchat.Core.Encryption
 {
-    internal class PublicKeyEncryption : IDisposable
+    internal class PublicKeyEncryption : IPublicKeyEncryption
     {
         private readonly RSA localRsa;
         private readonly RSA remoteRsa;
@@ -22,7 +22,7 @@ namespace Lanchat.Core.Encryption
             GC.SuppressFinalize(this);
         }
 
-        internal PublicKey ExportKey()
+        public PublicKey ExportKey()
         {
             var parameters = localRsa.ExportParameters(false);
             return new PublicKey
@@ -32,7 +32,7 @@ namespace Lanchat.Core.Encryption
             };
         }
 
-        internal void ImportKey(PublicKey publicKey)
+        public void ImportKey(PublicKey publicKey)
         {
             var parameters = new RSAParameters
             {
@@ -41,19 +41,22 @@ namespace Lanchat.Core.Encryption
             };
 
             remoteRsa.ImportParameters(parameters);
-
-            // Test imported keys
-            remoteRsa.Encrypt(new byte[] {0x10}, RSAEncryptionPadding.Pkcs1);
+            TestKeys();
         }
 
-        internal byte[] Encrypt(byte[] bytes)
+        public byte[] Encrypt(byte[] bytes)
         {
             return remoteRsa.Encrypt(bytes, RSAEncryptionPadding.Pkcs1);
         }
 
-        internal byte[] Decrypt(byte[] encryptedBytes)
+        public byte[] Decrypt(byte[] encryptedBytes)
         {
             return localRsa.Decrypt(encryptedBytes, RSAEncryptionPadding.Pkcs1);
+        }
+
+        private void TestKeys()
+        {
+            remoteRsa.Encrypt(new byte[] {0x10}, RSAEncryptionPadding.Pkcs1);
         }
     }
 }

@@ -44,7 +44,7 @@ namespace Lanchat.Tests.ClientCore
             var loadedConfig = Storage.LoadConfig();
             Assert.AreEqual(config.Nickname, loadedConfig.Nickname);
         }
-        
+
         [Test]
         public void ListSaving()
         {
@@ -55,7 +55,7 @@ namespace Lanchat.Tests.ClientCore
             Assert.Contains(IPAddress.Loopback, loadedConfig.BlockedAddresses);
             Assert.Contains(IPAddress.Loopback, loadedConfig.SavedAddresses);
         }
-        
+
         [Test]
         public void LoadingInvalidJson()
         {
@@ -63,7 +63,7 @@ namespace Lanchat.Tests.ClientCore
             var config = Storage.LoadConfig();
             Assert.IsTrue(config.Fresh);
         }
-        
+
         [Test]
         public void CreatingDirectory()
         {

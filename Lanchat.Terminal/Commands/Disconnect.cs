@@ -12,9 +12,13 @@ namespace Lanchat.Terminal.Commands
         {
             var node = Program.Network.Nodes.Find(x => x.ShortId == args[0]);
             if (node != null)
+            {
                 node.Disconnect();
+            }
             else
+            {
                 Ui.Log.AddError(Resources._UserNotFound);
+            }
         }
     }
 }

@@ -7,6 +7,7 @@ namespace Lanchat.Tests.Mock
     public static class FileOperations
     {
         private static Guid _guid;
+
         public static void Prepare()
         {
             _guid = Guid.NewGuid();

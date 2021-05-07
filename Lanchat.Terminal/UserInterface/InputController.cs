@@ -11,7 +11,13 @@ namespace Lanchat.Terminal.UserInterface
 {
     public class InputController : IInputListener
     {
-        private readonly IList<ICommand> commands = new List<ICommand>();
+        private static readonly List<string> History = new()
+        {
+            string.Empty
+        };
+
+        private static int _currentHistoryItem;
+        private readonly List<ICommand> commands = new();
         private readonly TextBox input;
 
         public InputController(TextBox input)
@@ -39,7 +45,35 @@ namespace Lanchat.Terminal.UserInterface
 
         public void OnInput(InputEvent inputEvent)
         {
-            if (inputEvent.Key.Key != ConsoleKey.Enter) return;
+            if (inputEvent.Key.Key == ConsoleKey.UpArrow)
+            {
+                if (History.Count == _currentHistoryItem + 1)
+                {
+                    return;
+                }
+
+                _currentHistoryItem++;
+                input.Text = History.ElementAt(_currentHistoryItem);
+                return;
+            }
+
+            if (inputEvent.Key.Key == ConsoleKey.DownArrow)
+            {
+                if (_currentHistoryItem == 0)
+                {
+                    return;
+                }
+
+                _currentHistoryItem--;
+                input.Text = History.ElementAt(_currentHistoryItem);
+                return;
+            }
+
+            History[0] = input.Text;
+            if (inputEvent.Key.Key != ConsoleKey.Enter)
+            {
+                return;
+            }
 
             if (!string.IsNullOrWhiteSpace(input.Text))
             {
@@ -50,10 +84,11 @@ namespace Lanchat.Terminal.UserInterface
                 else
                 {
                     Ui.Log.AddMessage(input.Text, Program.Config.Nickname, false);
-                    Program.Network.Broadcasting.SendMessage(input.Text);
+                    Program.Network.Broadcast.SendMessage(input.Text);
                 }
             }
 
+            History.Insert(1, input.Text);
             input.Text = string.Empty;
             inputEvent.Handled = true;
         }
@@ -73,7 +108,11 @@ namespace Lanchat.Terminal.UserInterface
             if (args.Length < command.ArgsCount)
             {
                 var help = Resources.ResourceManager.GetString($"Help_{commandAlias}", CultureInfo.CurrentCulture);
-                if (help != null) Ui.Log.Add(help);
+                if (help != null)
+                {
+                    Ui.Log.Add(help);
+                }
+
                 return;
             }
 
