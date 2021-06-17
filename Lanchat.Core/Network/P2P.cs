@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Autofac.Core;
-using Lanchat.Core.Api;
+using Lanchat.Core.Channels;
 using Lanchat.Core.Config;
 using Lanchat.Core.Extensions;
 using Lanchat.Core.NodesDetection;
@@ -29,14 +29,16 @@ namespace Lanchat.Core.Network
         public P2P(IConfig config, Action<IActivatedEventArgs<INode>> nodeCreated, IEnumerable<Type> apiHandlers = null)
         {
             Config = config;
+            Broadcast = new Channel(false, "main");
+
             var container = NodeSetup.Setup(config, this, nodeCreated, apiHandlers);
-            nodesControl = new NodesControl(config, container);
+            nodesControl = new NodesControl(Broadcast, config, container);
+            
             server = Config.UseIPv6
                 ? new Server(IPAddress.IPv6Any, Config.ServerPort, Config, nodesControl)
                 : new Server(IPAddress.Any, Config.ServerPort, Config, nodesControl);
 
             NodesDetection = new NodesDetector(Config);
-            Broadcast = new Broadcast(nodesControl.Nodes);
             _ = new ConfigObserver(this);
         }
 
@@ -47,7 +49,7 @@ namespace Lanchat.Core.Network
         public List<INode> Nodes => nodesControl.Nodes.Where(x => x.Ready).Cast<INode>().ToList();
 
         /// <inheritdoc />
-        public IBroadcast Broadcast { get; }
+        public IChannel Broadcast { get; }
 
         /// <inheritdoc />
         public void Start()
@@ -108,8 +110,8 @@ namespace Lanchat.Core.Network
 
             var localHost = Dns.GetHostEntry(Dns.GetHostName());
             if ((localHost.AddressList.Any(x => x.Equals(ipAddress)) ||
-                ipAddress.Equals(IPAddress.Loopback) ||
-                ipAddress.Equals(IPAddress.IPv6Loopback)) 
+                 ipAddress.Equals(IPAddress.Loopback) ||
+                 ipAddress.Equals(IPAddress.IPv6Loopback))
                 && !Config.DebugMode)
             {
                 throw new ArgumentException("Address belong to local machine");

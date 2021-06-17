@@ -13,7 +13,7 @@ namespace Lanchat.Tests.Core.Api
     {
         private readonly List<INodeInternal> nodes = new();
         private readonly List<OutputMock> outputMocks = new();
-        private Broadcast broadcast;
+        private Channel channel;
 
         [OneTimeSetUp]
         public void Setup()
@@ -22,20 +22,20 @@ namespace Lanchat.Tests.Core.Api
             outputMocks.Add(new OutputMock());
             nodes.Add(new NodeMock(outputMocks.ElementAt(0)));
             nodes.Add(new NodeMock(outputMocks.ElementAt(1)));
-            broadcast = new Broadcast(nodes);
+            channel = new Channel(nodes);
         }
 
         [Test]
         public void SendMessage()
         {
-            broadcast.SendMessage("test");
+            channel.SendMessage("test");
             Assert.IsTrue(outputMocks.All(x => x.LastOutput != null));
         }
 
         [Test]
         public void SendData()
         {
-            broadcast.SendData(new Model());
+            channel.SendData(new Model());
             Assert.IsTrue(outputMocks.All(x => x.LastOutput != null));
         }
     }

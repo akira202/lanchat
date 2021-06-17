@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Autofac;
+using Lanchat.Core.Channels;
 using Lanchat.Core.Config;
 using Lanchat.Core.Network.Models;
 using Lanchat.Core.TransportLayer;
@@ -11,11 +12,13 @@ namespace Lanchat.Core.Network
 {
     internal class NodesControl
     {
+        private readonly IChannel broadcastChannel;
         private readonly IConfig config;
         private readonly IContainer container;
 
-        internal NodesControl(IConfig config, IContainer container)
+        internal NodesControl(IChannel broadcastChannel, IConfig config, IContainer container)
         {
+            this.broadcastChannel = broadcastChannel;
             this.config = config;
             this.container = container;
             Nodes = new List<INodeInternal>();
@@ -47,6 +50,8 @@ namespace Lanchat.Core.Network
         private void CloseNode(object sender, EventArgs e)
         {
             var node = (INodeInternal) sender;
+            broadcastChannel.Nodes.Remove((INode)node);
+            
             var id = node.Id;
             Nodes.Remove(node);
             node.Connected -= OnConnected;
@@ -58,6 +63,8 @@ namespace Lanchat.Core.Network
         private void OnConnected(object sender, EventArgs e)
         {
             var node = (INodeInternal) sender;
+            broadcastChannel.Nodes.Add((INode)node);
+            
             var nodesList = new NodesList();
             nodesList.AddRange(Nodes
                 .Where(x => x.Id != node.Id)

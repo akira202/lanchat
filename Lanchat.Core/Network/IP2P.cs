@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Lanchat.Core.Api;
+using Lanchat.Core.Channels;
 using Lanchat.Core.NodesDetection;
 
 namespace Lanchat.Core.Network
@@ -19,8 +19,9 @@ namespace Lanchat.Core.Network
         /// </summary>
         List<INode> Nodes { get; }
 
-        /// <see cref="Lanchat.Core.Api.IBroadcast" />
-        IBroadcast Broadcast { get; }
+        /// Default channel for all nodes.
+        /// <see cref="IChannel" />
+        IChannel Broadcast { get; }
         
         /// <summary>
         ///     Start server.
