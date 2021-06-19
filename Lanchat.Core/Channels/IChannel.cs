@@ -21,6 +21,11 @@ namespace Lanchat.Core.Channels
         void SendData(object data);
         
         /// <summary>
+        ///     Channel name.
+        /// </summary>
+        public string Name { get; set; }
+        
+        /// <summary>
         ///     Nodes in channel.
         /// </summary>
         public List<INode> Nodes { get; }

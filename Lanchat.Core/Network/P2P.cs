@@ -29,27 +29,27 @@ namespace Lanchat.Core.Network
         public P2P(IConfig config, Action<IActivatedEventArgs<INode>> nodeCreated, IEnumerable<Type> apiHandlers = null)
         {
             Config = config;
-            Broadcast = new Channel(false, "main");
+            Channels = new ChannelsControl();
+            _ = new ConfigObserver(this);
 
             var container = NodeSetup.Setup(config, this, nodeCreated, apiHandlers);
-            nodesControl = new NodesControl(Broadcast, config, container);
-            
+            nodesControl = new NodesControl(Channels.Broadcast, config, container);
+
             server = Config.UseIPv6
                 ? new Server(IPAddress.IPv6Any, Config.ServerPort, Config, nodesControl)
                 : new Server(IPAddress.Any, Config.ServerPort, Config, nodesControl);
 
             NodesDetection = new NodesDetector(Config);
-            _ = new ConfigObserver(this);
         }
+
+        /// <inheritdoc />
+        public ChannelsControl Channels { get; }
 
         /// <inheritdoc />
         public NodesDetector NodesDetection { get; }
 
         /// <inheritdoc />
         public List<INode> Nodes => nodesControl.Nodes.Where(x => x.Ready).Cast<INode>().ToList();
-
-        /// <inheritdoc />
-        public IChannel Broadcast { get; }
 
         /// <inheritdoc />
         public void Start()

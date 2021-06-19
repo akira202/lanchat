@@ -19,11 +19,11 @@ namespace Lanchat.Core.Config
             switch (e.PropertyName)
             {
                 case "Nickname":
-                    network.Broadcast.SendData(new NicknameUpdate {NewNickname = network.Config.Nickname});
+                    network.Channels.Broadcast.SendData(new NicknameUpdate {NewNickname = network.Config.Nickname});
                     break;
 
                 case "UserStatus":
-                    network.Broadcast.SendData(new UserStatusUpdate {NewUserStatus = network.Config.UserStatus});
+                    network.Channels.Broadcast.SendData(new UserStatusUpdate {NewUserStatus = network.Config.UserStatus});
                     break;
             }
         }

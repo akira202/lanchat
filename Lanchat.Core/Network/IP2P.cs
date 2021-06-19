@@ -19,9 +19,9 @@ namespace Lanchat.Core.Network
         /// </summary>
         List<INode> Nodes { get; }
 
-        /// Default channel for all nodes.
-        /// <see cref="IChannel" />
-        IChannel Broadcast { get; }
+        /// Target nodes groups.
+        /// <see cref="Lanchat.Core.Channels.ChannelsControl" />
+        ChannelsControl Channels { get; }
         
         /// <summary>
         ///     Start server.
