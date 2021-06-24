@@ -16,5 +16,10 @@ namespace Lanchat.Core.Channels
         ///     Channels list.
         /// </summary>
         List<IChannel> Channels { get; }
+
+        /// <summary>
+        ///     Create new channel.
+        /// </summary>
+        Channel CreateChannel(string name);
     }
 }

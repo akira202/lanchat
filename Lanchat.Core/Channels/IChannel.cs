@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Lanchat.Core.Network;
 
@@ -23,11 +24,16 @@ namespace Lanchat.Core.Channels
         /// <summary>
         ///     Channel name.
         /// </summary>
-        public string Name { get; set; }
+        string Name { get;}
+        
+        /// <summary>
+        ///     Channel guid.
+        /// </summary>
+        Guid Id { get;}
         
         /// <summary>
         ///     Nodes in channel.
         /// </summary>
-        public List<INode> Nodes { get; }
+        List<INode> Nodes { get; }
     }
 }

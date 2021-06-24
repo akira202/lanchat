@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Lanchat.Core.Network;
 
@@ -7,15 +8,26 @@ namespace Lanchat.Core.Channels
     public class Channel : IChannel
     {
         /// <inheritdoc />
-        public List<INode> Nodes { get; } = new();
+        public Guid Id { get; }
 
+        /// <inheritdoc />
+        public List<INode> Nodes { get; } = new();
+        
         internal Channel(string name)
         {
             Name = name;
+            Id = Guid.NewGuid();
         }
         
-        public string Name { get; set; }
-        
+        internal Channel(string name, Guid id)
+        {
+            Name = name;
+            Id = id;
+        }
+
+        /// <inheritdoc />
+        public string Name { get; }
+
         /// <inheritdoc />
         public void SendMessage(string message)
         {
