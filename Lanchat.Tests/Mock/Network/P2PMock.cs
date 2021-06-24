@@ -16,13 +16,13 @@ namespace Lanchat.Tests.Mock.Network
         public P2PMock()
         {
             NodesDetection = new NodesDetector(new ConfigMock());
-            Broadcast = new Channel(Nodes.Cast<INodeInternal>().ToList());
+            Channels = new ChannelsControl();
         }
 
         public List<IPAddress> Connected { get; } = new();
-        public IChannel Broadcast { get; }
         public NodesDetector NodesDetection { get; }
         public List<INode> Nodes { get; } = new();
+        public ChannelsControl Channels { get; }
 
         public event EventHandler<INode> NodeCreated;
 

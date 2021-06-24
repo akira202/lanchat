@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Lanchat.Core.Api;
+using Lanchat.Core.Channels;
 using Lanchat.Core.Network;
 using Lanchat.Tests.Mock.Api;
 using Lanchat.Tests.Mock.Models;
@@ -9,11 +10,11 @@ using NUnit.Framework;
 
 namespace Lanchat.Tests.Core.Api
 {
-    public class BroadcastTests
+    public class ChannelTests
     {
         private readonly List<INodeInternal> nodes = new();
         private readonly List<OutputMock> outputMocks = new();
-        private Channel channel;
+        private IChannel channel;
 
         [OneTimeSetUp]
         public void Setup()
@@ -22,7 +23,8 @@ namespace Lanchat.Tests.Core.Api
             outputMocks.Add(new OutputMock());
             nodes.Add(new NodeMock(outputMocks.ElementAt(0)));
             nodes.Add(new NodeMock(outputMocks.ElementAt(1)));
-            channel = new Channel(nodes);
+            channel = new Channel("test");
+            channel.Nodes.AddRange(nodes.Cast<INode>());
         }
 
         [Test]

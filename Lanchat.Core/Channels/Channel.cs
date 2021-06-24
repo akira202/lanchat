@@ -9,14 +9,12 @@ namespace Lanchat.Core.Channels
         /// <inheritdoc />
         public List<INode> Nodes { get; } = new();
 
-        internal Channel(bool isPrivate, string name)
+        internal Channel(string name)
         {
             Name = name;
-            Private = isPrivate;
         }
         
         public string Name { get; set; }
-        public bool Private { get; }
         
         /// <inheritdoc />
         public void SendMessage(string message)

@@ -13,7 +13,7 @@ namespace Lanchat.Core.Channels
 
         internal ChannelsControl()
         {
-            Broadcast = new Channel(false, "main");
+            Broadcast = new Channel("main");
             Channels.Add(Broadcast);
         }
     }
